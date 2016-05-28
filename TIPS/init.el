@@ -38,6 +38,9 @@
 (global-set-key (kbd "C-c <up>")    'windmove-up)
 (global-set-key (kbd "C-c <right>") 'windmove-right)
 
+;; Undisplay startup message
+(setq inhibit-startup-screen -1)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Auto install setting ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -65,5 +68,10 @@
 ;;;;;;;;;;;;;;;;;;;
 ;; magit setting ;;
 ;;;;;;;;;;;;;;;;;;;
-
+(add-to-list 'load-path "~/.emacs.d/elpa/dash-2.12.0/")
+(load-library "dash")
+(add-to-list 'load-path "~/.emacs.d/elisp/with-editor")
+(require 'with-editor)
+(add-to-list 'load-path "~/.emacs.d/elisp/magit/lisp")
+(require 'magit)
 
