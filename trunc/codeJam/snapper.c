@@ -14,18 +14,20 @@ int snapper_culc(INPUT *input) {
   snap[0].OUT = HIGH;
 
   for (i = 0; i < input->k; i++) {
+    D_OUT("Snaping!! %d times\n", i);
     for (k = input->n; k >= 1; k--) {
       if (snap[k-1].OUT == HIGH) {
         snap[k].STATE = 1 - snap[k].STATE;
       }
     }
-    for (k = 1; k < input->n; k++) {
+    for (k = 1; k <= input->n; k++) {
       if (snap[k].STATE == ON && snap[k-1].OUT == HIGH) {
         snap[k].OUT = HIGH;
       }
       else {
         snap[k].OUT = LOW;
       }
+      D_OUT("snap[%d] state[%d] out[%d]\n", k, snap[k].STATE, snap[k].OUT);
     }
   }
   res = snap[input->n].OUT;
