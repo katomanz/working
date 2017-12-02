@@ -23,12 +23,16 @@ stringStatusOnSale="status_on_sale"
 stringPriceMin="price_min"
 stingPriceMinValue="3000"
 
+# Identifer for keyword
+stringKeyword="keyword"
+
 # format of csv file
 stringCsvFileName="default.csv"
 
 ############################
 ###### Process        ######
 ############################
+
 # Get parameter from command line
 args = sys.argv
 argc = len(args)
@@ -46,11 +50,11 @@ query = args[1]
 
 # Get URL, Setting of serch setting
 browser.get(stringMerikariUrl + stringSerch +
- "?" + stringSortOrder + "=" + stringCreatedDesc + # Sort
- "&" + stringStatusTradingSoldOut + "=" + "1" +    # Status "sold out"
-# "&" + stringStatusOnSale + "=" + "1" +           # Status "On sale"
- "&" + stringPriceMin + "=" + stingPriceMinValue + # Minimum price
- "&keyword={}".format(query))                      # Keyword
+ "?" + stringSortOrder +            "=" + stringCreatedDesc +  # Sort
+ "&" + stringStatusTradingSoldOut + "=" + "1" +                # Status "sold out"
+#"&" + stringStatusOnSale +         "=" + "1" +                # Status "On sale"
+ "&" + stringPriceMin +             "=" + stingPriceMinValue + # Minimum price
+ "&" + stringKeyword +              "=" + "{}".format(query))  # Keyword
 
 page = 1
 
@@ -69,7 +73,6 @@ while page!=2:
 
             #5-1-3-1
             price = post.find_element_by_css_selector(".items-box-price").text
-            price = price.replace('\\', '')
             price = price.replace(unichr(165), '')
 
 
@@ -99,4 +102,3 @@ while page!=2:
 df.to_string()
 print(df)
 browser.quit()
-
