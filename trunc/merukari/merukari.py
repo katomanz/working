@@ -3,6 +3,7 @@ import os
 from selenium import webdriver
 import pandas
 import time
+import datetime
 
 ############################
 ###### Strings        ######
@@ -40,6 +41,9 @@ argc = len(args)
 if (argc != 2):
     print 'Usage: # python %s keyword_to_serch' % args[0]
     quit()
+
+# Get date
+today = datetime.date.today()
 
 # Initialize browser
 browser = webdriver.Chrome(executable_path='/usr/bin/chromedriver')
@@ -81,7 +85,6 @@ while page!=2:
 
             url = post.find_element_by_css_selector("a").get_attribute("href")
             se = pandas.Series([title,price,sold,url],['title','price','sold','url'])
-#            se = pandas.Series([price,sold,url],['price','sold','url'])
             se.str.encode(encoding="utf-8")
             df = df.append(se, ignore_index=True)
 
@@ -98,5 +101,5 @@ while page!=2:
         print("no pager exist anymore")
         break
 
-df.to_csv("{}.csv".format(query), encoding="utf-8")
+df.to_csv("{0}_{1}.csv".format(query, today), encoding="utf-8")
 browser.quit()
