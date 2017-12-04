@@ -46,6 +46,7 @@ browser = webdriver.Chrome(executable_path='/usr/bin/chromedriver')
 
 # Read csv file
 df = pandas.read_csv(stringCsvFileName, index_col=0)
+
 query = args[1]
 
 # Get URL, Setting of serch setting
@@ -71,18 +72,17 @@ while page!=2:
         for post in posts:
             title = post.find_element_by_css_selector("h3.items-box-name").text
 
-            #5-1-3-1
             price = post.find_element_by_css_selector(".items-box-price").text
             price = price.replace(unichr(165), '')
 
-
-            #5-1-3-2
             sold = 0
             if len(post.find_elements_by_css_selector(".item-sold-out-badge")) > 0:
                 sold = 1
 
             url = post.find_element_by_css_selector("a").get_attribute("href")
             se = pandas.Series([title,price,sold,url],['title','price','sold','url'])
+#            se = pandas.Series([price,sold,url],['price','sold','url'])
+            se.str.encode(encoding="utf-8")
             df = df.append(se, ignore_index=True)
 
         #5-1-4
@@ -98,7 +98,5 @@ while page!=2:
         print("no pager exist anymore")
         break
 
-#df.replace('0xa5','')
-df.to_string()
-print(df)
+df.to_csv("{}.csv".format(query), encoding="utf-8")
 browser.quit()
