@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 import sys
 import os
 from selenium import webdriver
 import pandas
 import time
 import datetime
+from selenium.common.exceptions import NoSuchElementException
 
 ############################
 ###### Strings        ######
@@ -29,6 +31,44 @@ stringKeyword="keyword"
 
 # format of csv file
 stringCsvFileName="default.csv"
+############################
+###### Function       ######
+############################
+def getText_find_element_by_css_selector(browser, cssSel):
+    try:
+        ret = browser2.find_element_by_css_selector(cssSel)
+    except:
+        print("Could not find " + cssSel)
+        ret = "NA"
+    finally:
+        return ret
+
+def getItemsboxSeries(post):
+
+    title = post.find_element_by_css_selector("h3.items-box-name").text
+    price = post.find_element_by_css_selector(".items-box-price").text
+    price = price.replace(unichr(165), '')
+
+    sold = 0
+    if len(post.find_elements_by_css_selector(".item-sold-out-badge")) > 0:
+        sold = 1
+
+    url = post.find_element_by_css_selector("a").get_attribute("href")
+
+    browser2.get(url)
+    sub_category     = getText_find_element_by_css_selector(browser2, ".item-detail-table-sub-category").text
+    sub_sub_category = getText_find_element_by_css_selector(browser2, ".item-detail-table-sub-sub-category").text
+
+    trs = browser2.find_element_by_class_name("item-box-container").find_elements_by_css_selector("tr")
+    for tr in trs:
+        strTh = tr.find_element_by_css_selector("th").text
+        if (strTh == u'ブランド'):
+            brand = tr.find_element_by_css_selector("td").text
+            print(brand)
+
+    se = pandas.Series([title,price,sold,url,sub_category,sub_sub_category,brand],['title','price','sold','url','sub_category','sub_sub_category','brand'])
+    se.str.encode(encoding="utf-8")
+    return se
 
 ############################
 ###### Process        ######
@@ -46,7 +86,8 @@ if (argc != 2):
 today = datetime.date.today()
 
 # Initialize browser
-browser = webdriver.Chrome(executable_path='/usr/bin/chromedriver')
+browser1 = webdriver.Chrome(executable_path='/usr/bin/chromedriver')
+browser2 = webdriver.Chrome(executable_path='/usr/bin/chromedriver')
 
 # Read csv file
 df = pandas.read_csv(stringCsvFileName, index_col=0)
@@ -54,7 +95,7 @@ df = pandas.read_csv(stringCsvFileName, index_col=0)
 query = args[1]
 
 # Get URL, Setting of serch setting
-browser.get(stringMerikariUrl + stringSerch +
+browser1.get(stringMerikariUrl + stringSerch +
  "?" + stringSortOrder +            "=" + stringCreatedDesc +  # Sort
  "&" + stringStatusTradingSoldOut + "=" + "1" +                # Status "sold out"
 #"&" + stringStatusOnSale +         "=" + "1" +                # Status "On sale"
@@ -65,35 +106,25 @@ page = 1
 
 #Continue until specified page
 while page!=2:
-    if len(browser.find_elements_by_css_selector("li.pager-next .pager-cell:nth-child(1) a")) > 0:
+    if len(browser1.find_elements_by_css_selector("li.pager-next .pager-cell:nth-child(1) a")) > 0:
         print("######################page: {} ########################".format(page))
         print("Starting to get posts...")
 
         #5-1-2
-        posts = browser.find_elements_by_css_selector(".items-box")
+        posts = browser1.find_elements_by_css_selector(".items-box")
+        # Get next page url
+        btn = browser1.find_element_by_css_selector("li.pager-next .pager-cell:nth-child(1) a").get_attribute("href")
 
-        #5-1-3
+        #
         for post in posts:
-            title = post.find_element_by_css_selector("h3.items-box-name").text
-
-            price = post.find_element_by_css_selector(".items-box-price").text
-            price = price.replace(unichr(165), '')
-
-            sold = 0
-            if len(post.find_elements_by_css_selector(".item-sold-out-badge")) > 0:
-                sold = 1
-
-            url = post.find_element_by_css_selector("a").get_attribute("href")
-            se = pandas.Series([title,price,sold,url],['title','price','sold','url'])
-            se.str.encode(encoding="utf-8")
+            se = getItemsboxSeries(post)
             df = df.append(se, ignore_index=True)
 
-        #5-1-4
+        # Increment page number
         page+=1
 
-        btn = browser.find_element_by_css_selector("li.pager-next .pager-cell:nth-child(1) a").get_attribute("href")
         print("next url:{}".format(btn))
-        browser.get(btn)
+        browser1.get(btn)
         print("Moving to next page......")
 
     #5-2
@@ -102,4 +133,7 @@ while page!=2:
         break
 
 df.to_csv("{0}_{1}.csv".format(query, today), encoding="utf-8")
-browser.quit()
+
+# Close browser
+browser1.quit()
+browser2.quit()
