@@ -31,42 +31,46 @@ stringKeyword="keyword"
 
 # format of csv file
 stringCsvFileName="default.csv"
+
+# string for brand utf-8
+stringBrand_Utf8=u"ブランド"
+
 ############################
 ###### Function       ######
 ############################
 def getText_find_element_by_css_selector(browser, cssSel):
     try:
-        ret = browser2.find_element_by_css_selector(cssSel)
+        ret = browser.find_element_by_css_selector(cssSel).text
     except:
         print("Could not find " + cssSel)
         ret = "NA"
     finally:
         return ret
 
-def getItemsboxSeries(post):
-
-    title = post.find_element_by_css_selector("h3.items-box-name").text
-    price = post.find_element_by_css_selector(".items-box-price").text
+def getSeriesFromItemsbox(post):
+    title = getText_find_element_by_css_selector(post, "h3.items-box-name")
+    price = getText_find_element_by_css_selector(post, ".items-box-price")
     price = price.replace(unichr(165), '')
 
-    sold = 0
+
+    isSold = 0
     if len(post.find_elements_by_css_selector(".item-sold-out-badge")) > 0:
-        sold = 1
+        isSold = 1
 
     url = post.find_element_by_css_selector("a").get_attribute("href")
 
     browser2.get(url)
-    sub_category     = getText_find_element_by_css_selector(browser2, ".item-detail-table-sub-category").text
-    sub_sub_category = getText_find_element_by_css_selector(browser2, ".item-detail-table-sub-sub-category").text
+    sub_category     = getText_find_element_by_css_selector(browser2, ".item-detail-table-sub-category")
+    sub_sub_category = getText_find_element_by_css_selector(browser2, ".item-detail-table-sub-sub-category")
 
+    # Get brand name
     trs = browser2.find_element_by_class_name("item-box-container").find_elements_by_css_selector("tr")
     for tr in trs:
-        strTh = tr.find_element_by_css_selector("th").text
-        if (strTh == u'ブランド'):
-            brand = tr.find_element_by_css_selector("td").text
-            print(brand)
+        strTh = getText_find_element_by_css_selector(tr,"th")
+        if (strTh == stringBrand_Utf8):
+            brand = getText_find_element_by_css_selector(tr,"td")
 
-    se = pandas.Series([title,price,sold,url,sub_category,sub_sub_category,brand],['title','price','sold','url','sub_category','sub_sub_category','brand'])
+    se = pandas.Series([title,price,isSold,url,sub_category,sub_sub_category,brand],['title','price','sold','url','sub_category','sub_sub_category','brand'])
     se.str.encode(encoding="utf-8")
     return se
 
@@ -110,14 +114,12 @@ while page!=2:
         print("######################page: {} ########################".format(page))
         print("Starting to get posts...")
 
-        #5-1-2
         posts = browser1.find_elements_by_css_selector(".items-box")
         # Get next page url
         btn = browser1.find_element_by_css_selector("li.pager-next .pager-cell:nth-child(1) a").get_attribute("href")
 
-        #
         for post in posts:
-            se = getItemsboxSeries(post)
+            se = getSeriesFromItemsbox(post)
             df = df.append(se, ignore_index=True)
 
         # Increment page number
