@@ -70,7 +70,8 @@ def getSeriesFromItemsbox(post):
         if (strTh == stringBrand_Utf8):
             brand = getText_find_element_by_css_selector(tr,"td")
 
-    se = pandas.Series([title,price,isSold,url,sub_category,sub_sub_category,brand],['title','price','sold','url','sub_category','sub_sub_category','brand'])
+    se = pandas.Series([title,price,isSold,url,sub_category,sub_sub_category,brand],
+                       ['title','price','sold','url','sub_category','sub_sub_category','brand'])
     se.str.encode(encoding="utf-8")
     return se
 
@@ -134,7 +135,7 @@ while page!=2:
         print("no pager exist anymore")
         break
 
-df.to_csv("{0}_{1}.csv".format(query, today), encoding="utf-8")
+df.to_csv("./datum/{0}_{1}.csv".format(query, today), encoding="utf-8")
 
 # Close browser
 browser1.quit()
