@@ -12,7 +12,7 @@ if (argc != 2):
     quit()
 
 line_notify_api = 'https://notify-api.line.me/api/notify'
-message = query = args[1] + ' was searched.'
+message = query = args[1] + ': search was done.'
 
 payload = {'message': message}
 headers = {'Authorization': 'Bearer ' + os.environ["LINE_NOTIFY_TOKEN"]}

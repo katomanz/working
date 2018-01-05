@@ -14,6 +14,9 @@ from selenium.common.exceptions import NoSuchElementException
 stringMerikariUrl="https://www.mercari.com/jp/"
 stringSerch="search/"
 
+# Path to Datum
+stringPathToDatum="./datum/"
+
 # Identifer for sort
 stringSortOrder="sort_order"
 stringCreatedDesc="created_desc"
@@ -30,7 +33,7 @@ stingPriceMinValue="3000"
 stringKeyword="keyword"
 
 # format of csv file
-stringCsvFileName="default.csv"
+stringCsvFileName="./sclpMerukari/default.csv"
 
 # string for brand utf-8
 stringBrand_Utf8=u"ブランド"
@@ -50,7 +53,7 @@ def getText_find_element_by_css_selector(browser, cssSel):
 def getSeriesFromItemsbox(post):
     title = getText_find_element_by_css_selector(post, "h3.items-box-name")
     price = getText_find_element_by_css_selector(post, ".items-box-price")
-    price = price.replace(unichr(165), '')
+    price = price.replace(chr(165), '')
 
 
     isSold = 0
@@ -84,7 +87,7 @@ args = sys.argv
 argc = len(args)
 # Check parameter
 if (argc != 2):
-    print 'Usage: # python %s keyword_to_serch' % args[0]
+    print ('Usage: # python %s keyword_to_serch' % args[0])
     quit()
 
 # Get date
@@ -135,7 +138,7 @@ while page!=2:
         print("no pager exist anymore")
         break
 
-df.to_csv("./datum/{0}_{1}.csv".format(query, today), encoding="utf-8")
+df.to_csv(stringPathToDatum + "{0}_{1}.csv".format(query, today), encoding="utf-8")
 
 # Close browser
 browser1.quit()
