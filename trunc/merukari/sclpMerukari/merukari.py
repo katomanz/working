@@ -113,7 +113,7 @@ browser1.get(stringMerikariUrl + stringSerch +
 page = 1
 
 #Continue until specified page
-while page!=2:
+while page!=20:
     if len(browser1.find_elements_by_css_selector("li.pager-next .pager-cell:nth-child(1) a")) > 0:
         print("######################page: {} ########################".format(page))
         print("Starting to get posts...")
