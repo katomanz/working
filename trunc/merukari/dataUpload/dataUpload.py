@@ -6,6 +6,7 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
 stringPathDatum="../datum/"
+folder_id=os.environ["GOOGLEDRV_FLDR_ID"]
 
 # Get parameter from command line
 args = sys.argv
@@ -21,11 +22,14 @@ today = datetime.date.today()
 # Get file name to upload
 query = args[1]
 filename = "{0}_{1}.csv".format(query, today)
+
 gauth = GoogleAuth()
 gauth.CommandLineAuth()
+
 drive = GoogleDrive(gauth)
 
-f = drive.CreateFile({'title': filename, 'mimeType': 'text/plain'})
+# Make sure to add the path to the file to upload below.
+f = drive.CreateFile({"parents": [{"kind": "drive#fileLink", "id": folder_id}], "title": filename})
 f.SetContentFile(stringPathDatum + filename)
 f.Upload()
 
