@@ -51,10 +51,10 @@ def getText_find_element_by_css_selector(browser, cssSel):
         return ret
 
 def getSeriesFromItemsbox(post):
+    # Get price
     title = getText_find_element_by_css_selector(post, "h3.items-box-name")
     price = getText_find_element_by_css_selector(post, ".items-box-price")
-    price = price.replace(chr(165), '')
-
+    price = price.replace(chr(165), '') # Remove yen mark
 
     isSold = 0
     if len(post.find_elements_by_css_selector(".item-sold-out-badge")) > 0:
@@ -138,7 +138,7 @@ while page!=20:
         print("no pager exist anymore")
         break
 
-df.to_csv(stringPathToDatum + "{0}_{1}.csv".format(query, today), encoding="utf-8")
+df.to_csv(stringPathToDatum + "{0}_{1}.csv".format(query, today), encoding="utf-8", sep='\t')
 
 # Close browser
 browser1.quit()
