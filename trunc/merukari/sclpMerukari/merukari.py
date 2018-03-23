@@ -94,8 +94,8 @@ if (argc != 2):
 today = datetime.date.today()
 
 # Initialize browser
-browser1 = webdriver.Chrome(executable_path='/usr/bin/chromedriver')
-browser2 = webdriver.Chrome(executable_path='/usr/bin/chromedriver')
+browser1 = webdriver.PhantomJS()
+browser2 = webdriver.PhantomJS()
 
 # Read csv file
 df = pandas.read_csv(stringCsvFileName, index_col=0)

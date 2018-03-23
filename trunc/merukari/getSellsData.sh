@@ -12,8 +12,8 @@ python3.6 ./sclpMerukari/merukari.py $1
 
 # Upload to google drive
 cd dataUpload
-python ./dataUpload.py $1
+python3.6 ./dataUpload.py $1
 cd ..
 
 # Send notification
-python notification.py $1
+python3.6 notification.py $1
