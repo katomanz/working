@@ -56,19 +56,20 @@ def getText_find_element_by_css_selector(browser, cssSel):
     finally:
         return ret
 
-def getSeriesFromItemsbox(post):
-    # Get price
-    title = getText_find_element_by_css_selector(post, "h3.items-box-name")
-    price = getText_find_element_by_css_selector(post, ".items-box-price")
-    price = price.replace(chr(165), '') # Remove yen mark
+def getSeriesFromItemsbox(url):
+    # get URL
+    browser2.get(url)
+    print(url)
+    # Get title
+    title = getText_find_element_by_css_selector(browser2, "h2.item-name")
 
+    # Get price
+    price = getText_find_element_by_css_selector(browser2, "span.item-price")
+    
     isSold = 0
-    if len(post.find_elements_by_css_selector(".item-sold-out-badge")) > 0:
+    if len(getText_find_element_by_css_selector(browser2, ".item-sold-out-badge")) > 0:
         isSold = 1
 
-    url = post.find_element_by_css_selector("a").get_attribute("href")
-
-    browser2.get(url)
     sub_category     = getText_find_element_by_css_selector(browser2, ".item-detail-table-sub-category")
     sub_sub_category = getText_find_element_by_css_selector(browser2, ".item-detail-table-sub-sub-category")
 
@@ -95,7 +96,7 @@ def getHtmlFromItemsbox(post):
 def saveHtmlFile(soup, path):
     # Create random filename 10 characters
     randomFileName = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-    with open(path + randomFileName + '.html', mode = 'w', encoding = 'utf-8') as fw:
+    with open(path + randomFileName + '.html', mode='w', encoding='utf-8') as fw:
         fw.write(soup.prettify())
 
 ############################
@@ -116,6 +117,8 @@ today = datetime.date.today()
 # Initialize browser
 browser1 = webdriver.PhantomJS()
 browser2 = webdriver.PhantomJS()
+#browser1 = webdriver.Chrome(executable_path='/usr/bin/chromedriver')
+#browser2 = webdriver.Chrome(executable_path='/usr/bin/chromedriver')
 
 # Read csv file
 df = pandas.read_csv(stringCsvFileName, index_col=0)
@@ -139,7 +142,7 @@ browser1.get(stringMerikariUrl + stringSerch +
 page = 1
 
 #Continue until specified page
-while page!=20:
+while page != 20:
     if len(browser1.find_elements_by_css_selector("li.pager-next .pager-cell:nth-child(1) a")) > 0:
         print("######################page: {} ########################".format(page))
         print("Starting to get posts...")
@@ -150,12 +153,13 @@ while page!=20:
 
         for post in posts:
             ## Scraping without tmp html
-            # se = getSeriesFromItemsbox(post)
-            # df = df.append(se, ignore_index=True)
+            url = post.find_element_by_css_selector("a").get_attribute("href")
+            se = getSeriesFromItemsbox(url)
+            df = df.append(se, ignore_index=True)
 
             ## Scraping with tmp html
-            soup = getHtmlFromItemsbox(post)
-            saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/")
+            #soup = getHtmlFromItemsbox(post)
+            #saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/")
 
         # Increment page number
         page+=1
