@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
-from selenium import webdriver
 import pandas
 import time
 import datetime
+import random
+import string
+from bs4 import BeautifulSoup
+from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-
+ 
 ############################
 ###### Strings        ######
 ############################
@@ -16,6 +19,9 @@ stringSerch="search/"
 
 # Path to Datum
 stringPathToDatum="./datum/"
+
+# Path to tmpHtml
+stringPathToTmpHtml="./sclpMerukari/tmpHtml/"
 
 # Identifer for sort
 stringSortOrder="sort_order"
@@ -78,6 +84,20 @@ def getSeriesFromItemsbox(post):
     se.str.encode(encoding="utf-8")
     return se
 
+# Get Html file only
+def getHtmlFromItemsbox(post):
+    # Get Url 
+    url = post.find_element_by_css_selector("a").get_attribute("href")
+    browser2.get(url)
+    return BeautifulSoup(browser2.page_source, 'html.parser')
+
+# Save Html file to the specified path 
+def saveHtmlFile(soup, path):
+    # Create random filename 10 characters
+    randomFileName = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+    with open(path + randomFileName + '.html', mode = 'w', encoding = 'utf-8') as fw:
+        fw.write(soup.prettify())
+
 ############################
 ###### Process        ######
 ############################
@@ -102,6 +122,12 @@ df = pandas.read_csv(stringCsvFileName, index_col=0)
 
 query = args[1]
 
+dataSetName = "{0}_{1}".format(query, today)
+
+# Create tmp directory date + query
+if os.path.isdir(stringPathToTmpHtml + dataSetName) != True:
+    os.mkdir(stringPathToTmpHtml + dataSetName)
+
 # Get URL, Setting of serch setting
 browser1.get(stringMerikariUrl + stringSerch +
  "?" + stringSortOrder +            "=" + stringCreatedDesc +  # Sort
@@ -123,22 +149,27 @@ while page!=20:
         btn = browser1.find_element_by_css_selector("li.pager-next .pager-cell:nth-child(1) a").get_attribute("href")
 
         for post in posts:
-            se = getSeriesFromItemsbox(post)
-            df = df.append(se, ignore_index=True)
+            ## Scraping without tmp html
+            # se = getSeriesFromItemsbox(post)
+            # df = df.append(se, ignore_index=True)
+
+            ## Scraping with tmp html
+            soup = getHtmlFromItemsbox(post)
+            saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/")
 
         # Increment page number
         page+=1
 
-        print("next url:{}".format(btn))
+        print("Next url:{}".format(btn))
         browser1.get(btn)
         print("Moving to next page......")
 
-    #5-2
+    # There isn't next page
     else:
         print("no pager exist anymore")
         break
 
-df.to_csv(stringPathToDatum + "{0}_{1}.csv".format(query, today), encoding="utf-8", sep='\t')
+df.to_csv(stringPathToDatum + dataSetName + ".csv", encoding="utf-8", sep='\t')
 
 # Close browser
 browser1.quit()
