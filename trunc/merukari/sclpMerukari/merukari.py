@@ -45,6 +45,9 @@ stringCsvFileName="./sclpMerukari/default.csv"
 # string for brand utf-8
 stringBrand_Utf8=u"ブランド"
 
+# string for mercari base URL
+stringBaseUrl="https://item.mercari.com/jp/"
+
 ############################
 ###### Function       ######
 ############################
@@ -58,7 +61,7 @@ def getText_find_element_by_css_selector(browser, cssSel):
         return ret
 
 def getSeriesFromItemsbox(url):
-    # get URL
+    # Load URL to browser
     browser2.get(url)
     
     # Get title
@@ -66,6 +69,10 @@ def getSeriesFromItemsbox(url):
 
     # Get price
     price = getText_find_element_by_css_selector(browser2, "span.item-price")
+    
+    # Get URL
+    pageUrl = stringBaseUrl + url[url.rfind('/')+1:]
+    print(pageUrl)
     
     isSold = 0
     if len(getText_find_element_by_css_selector(browser2, ".item-sold-out-badge")) > 0:
@@ -81,7 +88,7 @@ def getSeriesFromItemsbox(url):
         if (strTh == stringBrand_Utf8):
             brand = getText_find_element_by_css_selector(tr,"td")
 
-    se = pandas.Series([title,price,isSold,url,sub_category,sub_sub_category,brand],
+    se = pandas.Series([title,price,isSold,pageUrl,sub_category,sub_sub_category,brand],
                        ['title','price','sold','url','sub_category','sub_sub_category','brand'])
     se.str.encode(encoding="utf-8")
     return se
@@ -92,10 +99,9 @@ def getHtmlFromItemsbox(url):
     return BeautifulSoup(browser2.page_source, 'html.parser')
 
 # Save Html file to the specified path 
-def saveHtmlFile(soup, path):
-    # Create random filename 10 characters
-    randomFileName = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-    with open(path + randomFileName + '.html', mode='w', encoding='utf-8') as fw:
+def saveHtmlFile(soup, path, fileName):
+    # Create  characters
+    with open(path + fileName, mode='w', encoding='utf-8') as fw:
         fw.write(soup.prettify())
 
 ############################
@@ -141,7 +147,7 @@ browser1.get(stringMerikariUrl + stringSerch +
 page = 1
 
 #Continue until specified page
-while page != 2:
+while page != 20:
     if len(browser1.find_elements_by_css_selector("li.pager-next .pager-cell:nth-child(1) a")) > 0:
         print("######################page: {} ########################".format(page))
         print("Starting to get posts...")
@@ -156,7 +162,8 @@ while page != 2:
 
             ## Scraping with tmp html
             soup = getHtmlFromItemsbox(url)
-            saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/")
+            itemID = url.replace(stringBaseUrl, '').strip('/')
+            saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/", itemID)
 
             ## Scraping without tmp html
             #se = getSeriesFromItemsbox(url)
@@ -175,11 +182,10 @@ while page != 2:
         break
 
 tmpHtmlList = sorted(
-    glob.glob(stringPathToTmpHtml + dataSetName + "/*.html"), key=os.path.getmtime)
+    glob.glob(stringPathToTmpHtml + dataSetName + "/*"), key=os.path.getmtime)
 
 for tmpHtml in tmpHtmlList:
     tmp = "file:///" + os.getcwd() + "/" + tmpHtml
-    print(tmp)
     se = getSeriesFromItemsbox(tmp)
     df = df.append(se, ignore_index=True)
     
