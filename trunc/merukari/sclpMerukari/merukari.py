@@ -45,6 +45,9 @@ stringCsvFileName="./sclpMerukari/default.csv"
 # string for brand utf-8
 stringBrand_Utf8=u"ブランド"
 
+# string for owner utf-8
+stringOwner_Utf8=u"出品者"
+
 # string for mercari base URL
 stringBaseUrl="https://item.mercari.com/jp/"
 
@@ -73,11 +76,19 @@ def getSeriesFromItemsbox(url):
     # Get URL
     pageUrl = stringBaseUrl + url[url.rfind('/')+1:]
     print(pageUrl)
+
+    # Get Owner
+    trs = browser2.find_element_by_class_name("item-detail-table").find_elements_by_css_selector("tr")
+    for tr in trs:
+        strTh = getText_find_element_by_css_selector(tr,"th")
+        if (strTh == stringOwner_Utf8):
+            owner = getText_find_element_by_css_selector(tr,"td a")
     
     isSold = 0
     if len(getText_find_element_by_css_selector(browser2, ".item-sold-out-badge")) > 0:
         isSold = 1
 
+    # Get sub category and sub-sub category
     sub_category     = getText_find_element_by_css_selector(browser2, ".item-detail-table-sub-category")
     sub_sub_category = getText_find_element_by_css_selector(browser2, ".item-detail-table-sub-sub-category")
 
@@ -88,8 +99,8 @@ def getSeriesFromItemsbox(url):
         if (strTh == stringBrand_Utf8):
             brand = getText_find_element_by_css_selector(tr,"td")
 
-    se = pandas.Series([title,price,isSold,pageUrl,sub_category,sub_sub_category,brand],
-                       ['title','price','sold','url','sub_category','sub_sub_category','brand'])
+    se = pandas.Series([title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,owner],
+                       ['title','price','sold','url','sub_category','sub_sub_category','brand','owner'])
     se.str.encode(encoding="utf-8")
     return se
 
