@@ -39,6 +39,9 @@ stingPriceMinValue="3000"
 # Identifer for keyword
 stringKeyword="keyword"
 
+# Identifer for root category
+stringCategoryRoot="category_root"
+
 # format of csv file
 stringCsvFileName="./sclpMerukari/default.csv"
 
@@ -50,6 +53,9 @@ stringOwner_Utf8=u"出品者"
 
 # string for mercari base URL
 stringBaseUrl="https://item.mercari.com/jp/"
+
+# string for next page
+stringNextPage="li.pager-next .pager-cell:nth-child(1) a"
 
 ############################
 ###### Function       ######
@@ -66,13 +72,13 @@ def getText_find_element_by_css_selector(browser, cssSel):
 def getSeriesFromItemsbox(url):
     # Load URL to browser
     browser2.get(url)
-    
+
     # Get title
     title = getText_find_element_by_css_selector(browser2, "h2.item-name")
 
     # Get price
     price = getText_find_element_by_css_selector(browser2, "span.item-price")
-    
+
     # Get URL
     pageUrl = stringBaseUrl + url[url.rfind('/')+1:]
     print(pageUrl)
@@ -83,7 +89,7 @@ def getSeriesFromItemsbox(url):
         strTh = getText_find_element_by_css_selector(tr,"th")
         if (strTh == stringOwner_Utf8):
             owner = getText_find_element_by_css_selector(tr,"td a")
-    
+
     isSold = 0
     if len(getText_find_element_by_css_selector(browser2, ".item-sold-out-badge")) > 0:
         isSold = 1
@@ -109,11 +115,49 @@ def getHtmlFromItemsbox(url):
     browser2.get(url)
     return BeautifulSoup(browser2.page_source, 'html.parser')
 
-# Save Html file to the specified path 
+# Save Html file to the specified path
 def saveHtmlFile(soup, path, fileName):
     # Create  characters
     with open(path + fileName, mode='w', encoding='utf-8') as fw:
         fw.write(soup.prettify())
+
+# Clowling pages, paramter is URL
+def crowling(num_page, url):
+    browser1.get(url)
+    page = 1
+    while page != num_page:
+        if len(browser1.find_elements_by_css_selector(stringNextPage)) > 0:
+            print("######################page: {} ########################".format(page))
+            print("Starting to get posts...")
+
+            posts = browser1.find_elements_by_css_selector(".items-box")
+            # Get next page url
+            btn = browser1.find_element_by_css_selector(
+                "li.pager-next .pager-cell:nth-child(1) a").get_attribute("href")
+
+            for post in posts:
+                url = post.find_element_by_css_selector("a").get_attribute("href")
+
+                ## Crawling only
+                soup = getHtmlFromItemsbox(url)
+                itemID = url.replace(stringBaseUrl, '').strip('/')
+                saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/", itemID)
+
+                ## Scraping without tmp html
+                #se = getSeriesFromItemsbox(url)
+                #df = df.append(se, ignore_index=True)
+
+            # Increment page number
+            page+=1
+
+            print("Next url:{}".format(btn))
+            browser1.get(btn)
+            print("Moving to next page......")
+
+        # There isn't next page
+        else:
+            print("no pager exist anymore")
+            break
 
 ############################
 ###### Process        ######
@@ -148,50 +192,18 @@ if os.path.isdir(stringPathToTmpHtml + dataSetName) != True:
     os.mkdir(stringPathToTmpHtml + dataSetName)
 
 # Get URL, Setting of serch setting
-browser1.get(stringMerikariUrl + stringSerch +
+webUrl = (stringMerikariUrl + stringSerch +
  "?" + stringSortOrder +            "=" + stringCreatedDesc +  # Sort
- "&" + stringStatusTradingSoldOut + "=" + "1" +                # Status "sold out"
+ "&" + stringCategoryRoot +         "=" + "2"               +  # root category 1=lady's 2=men's
+ "&" + stringStatusTradingSoldOut + "=" + "1"               +  # Status "sold out"
 #"&" + stringStatusOnSale +         "=" + "1" +                # Status "On sale"
  "&" + stringPriceMin +             "=" + stingPriceMinValue + # Minimum price
  "&" + stringKeyword +              "=" + "{}".format(query))  # Keyword
 
-page = 1
+# Continue to crowling until specified page
+crowling(num_page=20, url=webUrl)
 
-#Continue until specified page
-while page != 20:
-    if len(browser1.find_elements_by_css_selector("li.pager-next .pager-cell:nth-child(1) a")) > 0:
-        print("######################page: {} ########################".format(page))
-        print("Starting to get posts...")
-
-        posts = browser1.find_elements_by_css_selector(".items-box")
-        # Get next page url
-        btn = browser1.find_element_by_css_selector(
-            "li.pager-next .pager-cell:nth-child(1) a").get_attribute("href")
-
-        for post in posts:
-            url = post.find_element_by_css_selector("a").get_attribute("href")
-
-            ## Scraping with tmp html
-            soup = getHtmlFromItemsbox(url)
-            itemID = url.replace(stringBaseUrl, '').strip('/')
-            saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/", itemID)
-
-            ## Scraping without tmp html
-            #se = getSeriesFromItemsbox(url)
-            #df = df.append(se, ignore_index=True)
-
-        # Increment page number
-        page+=1
-
-        print("Next url:{}".format(btn))
-        browser1.get(btn)
-        print("Moving to next page......")
-
-    # There isn't next page
-    else:
-        print("no pager exist anymore")
-        break
-
+# Scraping
 tmpHtmlList = sorted(
     glob.glob(stringPathToTmpHtml + dataSetName + "/*"), key=os.path.getmtime)
 
@@ -199,7 +211,7 @@ for tmpHtml in tmpHtmlList:
     tmp = "file:///" + os.getcwd() + "/" + tmpHtml
     se = getSeriesFromItemsbox(tmp)
     df = df.append(se, ignore_index=True)
-    
+
 df.to_csv(stringPathToDatum + dataSetName + ".csv", encoding="utf-8", sep='\t')
 
 # Close browser
