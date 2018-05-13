@@ -81,7 +81,7 @@ def getSeriesFromItemsbox(url):
 
     # Get URL
     pageUrl = stringBaseUrl + url[url.rfind('/')+1:]
-    print(pageUrl)
+    pageUrl = pageUrl.replace(".html","")
 
     # Get Owner
     trs = browser2.find_element_by_class_name("item-detail-table").find_elements_by_css_selector("tr")
@@ -121,7 +121,7 @@ def saveHtmlFile(soup, path, fileName):
     with open(path + fileName, mode='w', encoding='utf-8') as fw:
         fw.write(soup.prettify())
 
-# Clowling pages, paramter is URL
+# Crowling pages, paramter is URL
 def crowling(num_page, url):
     browser1.get(url)
     page = 1
@@ -141,7 +141,7 @@ def crowling(num_page, url):
                 ## Crawling only
                 soup = getHtmlFromItemsbox(url)
                 itemID = url.replace(stringBaseUrl, '').strip('/')
-                saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/", itemID)
+                saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/", itemID + ".html")
 
                 ## Scraping without tmp html
                 #se = getSeriesFromItemsbox(url)
@@ -162,7 +162,6 @@ def crowling(num_page, url):
 ############################
 ###### Process        ######
 ############################
-
 # Get parameter from command line
 args = sys.argv
 argc = len(args)

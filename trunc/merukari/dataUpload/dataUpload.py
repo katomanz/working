@@ -21,10 +21,12 @@ today = datetime.date.today()
 
 # Get file name to upload
 query = args[1]
-filename = "{0}_{1}.csv".format(query, today)
+#filename = "{0}_{1}.csv".format(query, today)
+filename = query
 
 gauth = GoogleAuth()
-gauth.CommandLineAuth()
+#gauth.CommandLineAuth()
+gauth.LocalWebserverAuth()
 
 drive = GoogleDrive(gauth)
 
