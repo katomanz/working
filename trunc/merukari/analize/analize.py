@@ -93,7 +93,7 @@ dataSetName = "{0}_{1}".format(query, today)
 if os.path.isdir(stringPathToTmpHtml + dataSetName) != True:
     os.mkdir(stringPathToTmpHtml + dataSetName)
 
-csv_data = pd.read_table(stringPathToDatum + dataSetName + ".csv")
+csv_data = pd.read_table(stringPathToDatum + query)
 csv_data.fillna('No Brand', inplace=True)
 
 # Added new columns for link columns
@@ -148,8 +148,8 @@ for tmpHtml in tmpHtmlList:
 temlateHtml = open(stringForTemplateHtml, "r")
 tmplate = temlateHtml.read()
 
-htmlname = stringPathToDatum + dataSetName + ".html"
-with open(htmlname, 'w') as f:
+htmlFileName = dataSetName + ".html"
+with open(stringPathToDatum + htmlFileName, 'w') as f:
     f.write(tmplate + '\n')
     for file in tmpHtmlList:
         with open(file) as infile:
@@ -157,3 +157,4 @@ with open(htmlname, 'w') as f:
             f.write(infile.read()+'\n')
             f.write(stringForDetailsEnd+'\n')
 
+sys.exit(htmlFileName)

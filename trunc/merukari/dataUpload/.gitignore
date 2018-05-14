@@ -1,2 +1,4 @@
 credentials.json
-settings.yaml
+setting.yaml
+client_secrets.json
+*~

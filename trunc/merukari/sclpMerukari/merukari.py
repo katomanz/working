@@ -216,3 +216,6 @@ df.to_csv(stringPathToDatum + dataSetName + ".csv", encoding="utf-8", sep='\t')
 # Close browser
 browser1.quit()
 browser2.quit()
+
+# Return csv file name
+sys.exit(dataSetName + ".csv")
