@@ -108,7 +108,7 @@ csv_data['brand-sub_sub_category'] = csv_data['brand'] + ' + ' + csv_data['sub_s
 vc = csv_data['brand-sub_sub_category'].value_counts(dropna=False)
 vc.columns = ['brand-sub_sub_category', 'count']
 
-top20BSSC = vc.head(n=20)
+top20BSSC = vc.head(n=30)
 rank = 1
 for index_name, item in top20BSSC.iteritems():
     htmlData = csv_data[csv_data['brand-sub_sub_category'] == index_name]
