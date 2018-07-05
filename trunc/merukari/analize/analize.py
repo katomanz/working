@@ -126,9 +126,13 @@ for index_name, item in top20BSSC.iteritems():
     filename = "/rank" + '{0:02d}'.format(rank) + ".html"
     filepath = stringPathToTmpHtml + dataSetName + filename
     htmlData.to_html(filepath)
-    brandCategory = index_name + ": " + str(item)
-    brandCategoryElement = stringForSummary.replace('REPLACE', brandCategory)
 
+    # Get brand name + sub-sub-category string
+    brandCategory = index_name + ": " + str(item)
+    priceAve = "{0:.2f}".format(htmlData['price'].mean())
+    brandCategoryPrice = brandCategory + " Ave: " + str(priceAve) + "yen"
+    brandCategoryElement = stringForSummary.replace('REPLACE', brandCategoryPrice)
+    
     with open(filepath,'r') as htmlFile:
         l = htmlFile.readlines()
    

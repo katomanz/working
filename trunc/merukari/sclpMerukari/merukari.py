@@ -36,6 +36,8 @@ stringStatusOnSale="status_on_sale"
 stringPriceMin="price_min"
 stingPriceMinValue="3000"
 
+stringItemStatus="item_condition_id[1]"
+
 # Identifer for keyword
 stringKeyword="keyword"
 
@@ -78,7 +80,8 @@ def getSeriesFromItemsbox(url):
 
     # Get price
     price = getText_find_element_by_css_selector(browser2, "span.item-price")
-
+    price = price.replace("¥ ", "").replace(",", "")
+    
     # Get URL
     pageUrl = stringBaseUrl + url[url.rfind('/')+1:]
     pageUrl = pageUrl.replace(".html","")
@@ -197,6 +200,7 @@ webUrl = (stringMerikariUrl + stringSerch +
  "&" + stringStatusTradingSoldOut + "=" + "1"               +  # Status "sold out"
 #"&" + stringStatusOnSale +         "=" + "1" +                # Status "On sale"
  "&" + stringPriceMin +             "=" + stingPriceMinValue + # Minimum price
+ "&" + stringItemStatus +           "=" + "1"               +  # Status of Item
  "&" + stringKeyword +              "=" + "{}".format(query))  # Keyword
 
 # Continue to crowling until specified page
