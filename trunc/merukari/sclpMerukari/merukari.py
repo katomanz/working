@@ -10,7 +10,7 @@ import string
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
- 
+
 ############################
 ###### Strings        ######
 ############################
@@ -76,12 +76,12 @@ def getSeriesFromItemsbox(url):
     browser2.get(url)
 
     # Get title
-    title = getText_find_element_by_css_selector(browser2, "h2.item-name")
+    title = getText_find_element_by_css_selector(browser2, "h1.item-name")
 
     # Get price
     price = getText_find_element_by_css_selector(browser2, "span.item-price")
     price = price.replace("¥ ", "").replace(",", "")
-    
+
     # Get URL
     pageUrl = stringBaseUrl + url[url.rfind('/')+1:]
     pageUrl = pageUrl.replace(".html","")
