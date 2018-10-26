@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import MeCab # 必要なモジュールを読み込み
 import sys
+import os
 import string
 from collections import OrderedDict
 
@@ -77,8 +78,18 @@ def mecab_data(line):
 
     return morph # 得られた辞書型データを返す
 
+args = sys.argv
+argc = len(args)
+
+# Check parameter
+if (argc != 2):
+    print ('Usage: # python %s file_name' % args[0])
+    quit()
+
+filename = args[1]
+
 #例えば，品詞情報を用いて，特定の品詞について頻度表を作ってみる
-morph_analysis('./datum/完売_2018-10-17.txt', 'okurimono_m.txt') #全体の流れ
+morph_analysis(filename, 'okurimono_m.txt')
 mlines = get_m_lines('okurimono_m.txt')
 morphs_dict = {}
 noun_ha(mlines)
