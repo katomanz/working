@@ -46,8 +46,8 @@ def noun_ha(mlines):
         #tr_hist に　頻出回数をキーに変換したものを入れる。バリューを名詞のリストにする
         tr_hist[hist[noun]] = tr_hist.get(hist[noun],[])+[noun]
 
+    #見やすく名詞ごとに出力、頻度高い順に
     for i in sorted(tr_hist.keys(), reverse = True):
-        #見やすく名詞ごとに出力、頻度高い順に
         if i > 30: #頻出回数が30以上なら
             for m in range(len(tr_hist[i])):
                 #同じ出現回数の名詞を分けて表示
@@ -56,12 +56,12 @@ def noun_ha(mlines):
 # 文字列である解析結果を使いやすい形（辞書型）に
 def mecab_data(line):
     mkeys = ['pos', 'pos1', 'pos2', 'pos3', 'inf', 'form', 'base', 'yomi', 'oto']
-    morph = OrderedDict() # 辞書型データの初期化
+    morph = OrderedDict()
     # タブ以前が表記、それ以降が品詞データのため
     data = line.split('\t')
     morph['surface'] = data[0]
 
-    features = data[1].split(',') # その他の情報はカンマ区切りなので，カンマで分割 [助詞,連体化,*,*,*,*,の,ノ,ノ]
+    features = data[1].split(',') # その他の情報はカンマ区切りなので，カンマで分割
     for i in range(len(features)) : # 分割されたそれぞれの情報を
         morph[mkeys[i]] = features[i] # その順序に従って，適切なキーの値とする
 
