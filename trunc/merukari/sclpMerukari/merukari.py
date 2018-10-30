@@ -143,7 +143,8 @@ def crowling(num_page, url):
 
                 ## Crawling only
                 soup = getHtmlFromItemsbox(url)
-                itemID = url.replace(stringBaseUrl, '').strip('/')
+                itemIDs = url.replace(stringBaseUrl, '').split('/')
+                itemID = itemIDs[0]
                 saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/", itemID + ".html")
 
                 ## Scraping without tmp html
