@@ -87,7 +87,7 @@ query = args[1]
 
 # Get date
 today = datetime.date.today()
-dataSetName = "{0}_{1}".format(query, today)
+dataSetName = query.replace(".csv", "")
 
 # Create tmp directory date + query
 if os.path.isdir(stringPathToTmpHtml + dataSetName) != True:
