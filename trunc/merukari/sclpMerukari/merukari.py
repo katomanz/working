@@ -10,58 +10,13 @@ import string
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-
-############################
-###### Strings        ######
-############################
-# URL sting
-stringMerikariUrl="https://www.mercari.com/jp/"
-stringSerch="search/"
-
-# Path to Datum
-stringPathToDatum="./datum/"
-
-# Path to tmpHtml
-stringPathToTmpHtml="./sclpMerukari/tmpHtml/"
-
-# Identifer for sort
-stringSortOrder="sort_order"
-stringCreatedDesc="created_desc"
-
-# Flag identifer if sold out or not
-stringStatusTradingSoldOut="status_trading_sold_out"
-stringStatusOnSale="status_on_sale"
-
-# Identifer for minimum price and value
-stringPriceMin="price_min"
-stingPriceMinValue="3000"
-
-stringItemStatus="item_condition_id[1]"
-
-# Identifer for keyword
-stringKeyword="keyword"
-
-# Identifer for root category
-stringCategoryRoot="category_root"
-
-# format of csv file
-stringCsvFileName="./sclpMerukari/default.csv"
-
-# string for brand utf-8
-stringBrand_Utf8=u"ブランド"
-
-# string for owner utf-8
-stringOwner_Utf8=u"出品者"
-
-# string for mercari base URL
-stringBaseUrl="https://item.mercari.com/jp/"
-
-# string for next page
-stringNextPage="li.pager-next .pager-cell:nth-child(1) a"
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../lib')
+from const import *
 
 ############################
 ###### Function       ######
 ############################
+# Get find element by css selector
 def getText_find_element_by_css_selector(browser, cssSel):
     try:
         ret = browser.find_element_by_css_selector(cssSel).text
@@ -71,15 +26,26 @@ def getText_find_element_by_css_selector(browser, cssSel):
     finally:
         return ret
 
+# Get Html file only
+def getHtmlFromItemsbox(browser, url):
+    browser.get(url)
+    return BeautifulSoup(browser.page_source, 'html.parser')
+
+# Save Html file to the specified path
+def saveHtmlFile(soup, path, fileName):
+    # Create  characters
+    with open(path + fileName, mode='w', encoding='utf-8') as fw:
+        fw.write(soup.prettify())
+
 def getSeriesFromItemsbox(url):
     # Load URL to browser
     browser2.get(url)
 
     # Get title
-    title = getText_find_element_by_css_selector(browser2, "h1.item-name")
+    title = getText_find_element_by_css_selector(browser2, stringItemName)
 
     # Get price
-    price = getText_find_element_by_css_selector(browser2, "span.item-price")
+    price = getText_find_element_by_css_selector(browser2, stringItemPrice)
     price = price.replace("¥ ", "").replace(",", "")
 
     # Get URL
@@ -87,7 +53,7 @@ def getSeriesFromItemsbox(url):
     pageUrl = pageUrl.replace(".html","")
 
     # Get Owner
-    trs = browser2.find_element_by_class_name("item-detail-table").find_elements_by_css_selector("tr")
+    trs = browser2.find_element_by_class_name(stringItemDetailTable).find_elements_by_css_selector("tr")
     for tr in trs:
         strTh = getText_find_element_by_css_selector(tr,"th")
         if (strTh == stringOwner_Utf8):
@@ -98,8 +64,8 @@ def getSeriesFromItemsbox(url):
         isSold = 1
 
     # Get sub category and sub-sub category
-    sub_category     = getText_find_element_by_css_selector(browser2, ".item-detail-table-sub-category")
-    sub_sub_category = getText_find_element_by_css_selector(browser2, ".item-detail-table-sub-sub-category")
+    sub_category     = getText_find_element_by_css_selector(browser2, stringItemDetailTableSubCategory)
+    sub_sub_category = getText_find_element_by_css_selector(browser2, stringItemDetailTableSubSubCategory)
 
     # Get brand name
     trs = browser2.find_element_by_class_name("item-box-container").find_elements_by_css_selector("tr")
@@ -112,17 +78,6 @@ def getSeriesFromItemsbox(url):
                        ['title','price','sold','url','sub_category','sub_sub_category','brand','owner'])
     se.str.encode(encoding="utf-8")
     return se
-
-# Get Html file only
-def getHtmlFromItemsbox(url):
-    browser2.get(url)
-    return BeautifulSoup(browser2.page_source, 'html.parser')
-
-# Save Html file to the specified path
-def saveHtmlFile(soup, path, fileName):
-    # Create  characters
-    with open(path + fileName, mode='w', encoding='utf-8') as fw:
-        fw.write(soup.prettify())
 
 # Crowling pages, paramter is URL
 def crowling(num_page, url):
@@ -142,7 +97,7 @@ def crowling(num_page, url):
                 url = post.find_element_by_css_selector("a").get_attribute("href")
 
                 ## Crawling only
-                soup = getHtmlFromItemsbox(url)
+                soup = getHtmlFromItemsbox(browser2, url)
                 itemIDs = url.replace(stringBaseUrl, '').split('/')
                 itemID = itemIDs[0]
                 saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/", itemID + ".html")
