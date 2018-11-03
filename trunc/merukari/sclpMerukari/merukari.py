@@ -7,36 +7,15 @@ import time
 import datetime
 import random
 import string
-from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../lib')
 from const import *
+from utility import *
 
 ############################
 ###### Function       ######
 ############################
-# Get find element by css selector
-def getText_find_element_by_css_selector(browser, cssSel):
-    try:
-        ret = browser.find_element_by_css_selector(cssSel).text
-    except:
-        print("Could not find " + cssSel)
-        ret = "NA"
-    finally:
-        return ret
-
-# Get Html file only
-def getHtmlFromItemsbox(browser, url):
-    browser.get(url)
-    return BeautifulSoup(browser.page_source, 'html.parser')
-
-# Save Html file to the specified path
-def saveHtmlFile(soup, path, fileName):
-    # Create  characters
-    with open(path + fileName, mode='w', encoding='utf-8') as fw:
-        fw.write(soup.prettify())
-
 def getSeriesFromItemsbox(url):
     # Load URL to browser
     browser2.get(url)
@@ -60,7 +39,7 @@ def getSeriesFromItemsbox(url):
             owner = getText_find_element_by_css_selector(tr,"td a")
 
     isSold = 0
-    if len(getText_find_element_by_css_selector(browser2, ".item-sold-out-badge")) > 0:
+    if len(getText_find_element_by_css_selector(browser2, stringItemSoldOutBadge)) > 0:
         isSold = 1
 
     # Get sub category and sub-sub category

@@ -80,3 +80,6 @@ stringItemDetailTableSubCategory=".item-detail-table-sub-category"
 
 # string item detail table sub sub category
 stringItemDetailTableSubSubCategory=".item-detail-table-sub-sub-category"
+
+# string item sold out badge
+stringItemSoldOutBadge=".item-sold-out-badge"
