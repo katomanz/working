@@ -83,3 +83,24 @@ stringItemDetailTableSubSubCategory=".item-detail-table-sub-sub-category"
 
 # string item sold out badge
 stringItemSoldOutBadge=".item-sold-out-badge"
+
+
+# string for link
+stringForLink1="<a href=\""
+stringForLink2="\" target=\"_blank\">"
+stringForLink3="</a>"
+
+# Path to tmpHtml
+stringPathToAnalizeTmpHtml="./analize/tmpHtml/"
+
+# String for details
+stringForDetailsStart="<details>"
+
+# String for details
+stringForDetailsEnd="</details>"
+
+# String for Summary
+stringForSummary="<summary>REPLACE</summary>"
+
+# String for template html name
+stringForTemplateHtml="./analize/template.html"
