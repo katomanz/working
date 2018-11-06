@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Check Parameter
-if [ $# -ne 1 ]; then
+if [ $# -lt 1 ]; then
   echo "Please input keyword as a parameter." 1>&2
   exit 1
 fi
@@ -9,7 +9,7 @@ fi
 echo "Let's start searching!"
 # Run Searching and Create result csv file
 # Return value is csv file name of result
-CSV_FILENAME=$(python3.6 ./sclpMerukari/merukari.py $1 2>&1 > /dev/null);
+CSV_FILENAME=$(python3.6 ./sclpMerukari/merukari.py $1 $2 2>&1 > /dev/null);
 echo $CSV_FILENAME
 
 # Upload csv file to google drive

@@ -31,7 +31,7 @@ if (argc != 2):
 # Check and set directory name
 query = args[1]
 
-# Get date
+# Get data set name
 dataSetName = query.replace(".csv", "")
 
 # Create tmp directory date + query
@@ -53,9 +53,9 @@ csv_data['brand-sub_sub_category'] = csv_data['brand'] + ' + ' + csv_data['sub_s
 vc = csv_data['brand-sub_sub_category'].value_counts(dropna=False)
 vc.columns = ['brand-sub_sub_category', 'count']
 
-top20BSSC = vc.head(n=30)
+topBSSC = vc.head(n=30)
 rank = 1
-for index_name, item in top20BSSC.iteritems():
+for index_name, item in topBSSC.iteritems():
     htmlData = csv_data[csv_data['brand-sub_sub_category'] == index_name]
     # Delete unnecessary columns
     del htmlData['Unnamed: 0']
