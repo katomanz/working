@@ -58,8 +58,59 @@ def getSeriesFromItemsbox(url):
     se.str.encode(encoding="utf-8")
     return se
 
+def getDescriptionTextFromItemsbox(url):
+    # Load URL to browser
+    browser2.get(url)
+
+    # Get item desctiption
+    des = getText_find_element_by_css_selector(browser2, "p.item-description-inner")
+    return des
+
+# Scraping from local directory
+def scrapingFromLocalDirectory(directoryPath):
+    tmpHtmlList = sorted(
+        glob.glob(directoryPath), key=os.path.getmtime)
+
+    for tmpHtml in tmpHtmlList:
+        tmp = "file:///" + os.getcwd() + "/" + tmpHtml
+        se = getSeriesFromItemsbox(tmp)
+        df = df.append(se, ignore_index=True)
+    return df
+
+# scraping pages, paramter is URL
+def scrapelToGetDescription(num_page, url, df):
+    browser1.get(url)
+    page = 1
+    des = ""
+    while page != num_page:
+        if len(browser1.find_elements_by_css_selector(stringNextPage)) > 0:
+            print("######################page: {} ########################".format(page))
+            print("Starting to get posts...")
+
+            posts = browser1.find_elements_by_css_selector(".items-box")
+            # Get next page url
+            btn = browser1.find_element_by_css_selector(
+                "li.pager-next .pager-cell:nth-child(1) a").get_attribute("href")
+
+            for post in posts:
+                url = post.find_element_by_css_selector("a").get_attribute("href")
+                des += getDescriptionTextFromItemsbox(url)
+
+            # Increment page number
+            page+=1
+
+            print("Next url:{}".format(btn))
+            browser1.get(btn)
+            print("Moving to next page......")
+
+        # There isn't next page
+        else:
+            print("no pager exist anymore")
+            break
+    return des
+
 # Crowling pages, paramter is URL
-def crowling(num_page, url):
+def crowling(num_page, url, df):
     browser1.get(url)
     page = 1
     while page != num_page:
@@ -75,15 +126,15 @@ def crowling(num_page, url):
             for post in posts:
                 url = post.find_element_by_css_selector("a").get_attribute("href")
 
-                ## Crawling only
+                ## Crowling and save Html files just in case
                 soup = getHtmlFromItemsbox(browser2, url)
                 itemIDs = url.replace(stringBaseUrl, '').split('/')
                 itemID = itemIDs[0]
                 saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/", itemID + ".html")
 
                 ## Scraping without tmp html
-                #se = getSeriesFromItemsbox(url)
-                #df = df.append(se, ignore_index=True)
+                se = getSeriesFromItemsbox(url)
+                df = df.append(se, ignore_index=True)
 
             # Increment page number
             page+=1
@@ -104,7 +155,7 @@ def crowling(num_page, url):
 args = sys.argv
 argc = len(args)
 # Check parameter
-if (argc != 2):
+if (argc <  2):
     print ('Usage: # python %s keyword_to_serch' % args[0])
     quit()
 
@@ -138,19 +189,27 @@ webUrl = (stringMerikariUrl + stringSerch +
  "&" + stringItemStatus +           "=" + "1"               +  # Status of Item
  "&" + stringKeyword +              "=" + "{}".format(query))  # Keyword
 
-# Continue to crowling until specified page
-crowling(num_page=20, url=webUrl)
-
-# Scraping
-tmpHtmlList = sorted(
-    glob.glob(stringPathToTmpHtml + dataSetName + "/*"), key=os.path.getmtime)
-
-for tmpHtml in tmpHtmlList:
-    tmp = "file:///" + os.getcwd() + "/" + tmpHtml
-    se = getSeriesFromItemsbox(tmp)
-    df = df.append(se, ignore_index=True)
-
-df.to_csv(stringPathToDatum + dataSetName + ".csv", encoding="utf-8", sep='\t')
+if (argc == 3):
+    if (args[2] == "--scrape"):
+        # Scraping
+        print("Option: --scrape")
+        df = scrapingFromLocalDirectory(stringPathToTmpHtml + dataSetName + "/*", df=df)
+        df.to_csv(stringPathToDatum + dataSetName + ".csv", encoding="utf-8", sep='\t')
+    
+    elif (args[2] == "--getdtl"):
+        # Get item detail
+        print("Option: --getdtl")
+        df = scrapelToGetDescription(num_page=20, url=webUrl, df=df)
+        with open(stringPathToDatum + dataSetName + ".txt", 'ab') as f:
+            f.write(df.encode('utf-8', 'ignore'))
+    
+    else:
+        print("invalid option")
+else:
+    # Continue to crowling until specified page
+    print("Option: default")
+    df = crowling(num_page=20, url=webUrl, df=df)
+    df.to_csv(stringPathToDatum + dataSetName + ".csv", encoding="utf-8", sep='\t')
 
 # Close browser
 browser1.quit()

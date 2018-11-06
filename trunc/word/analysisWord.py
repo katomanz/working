@@ -3,6 +3,7 @@ import MeCab # 必要なモジュールを読み込み
 import sys
 import os
 import string
+import codecs
 from collections import OrderedDict
 
 from cleaning import *
@@ -10,16 +11,20 @@ from cleaning import *
 # Parse infile 文章を解析して，結果をoutfileに出力
 def morph_analysis(infile, outfile):
     t = MeCab.Tagger('mecabrc')
-    with open(infile, 'r') as fin:
-        with open(outfile, 'w') as fout:
-            fout.write(t.parse(clean_text(fin.read())))
+    with codecs.open(infile, 'r', 'utf-8',) as fin:
+        with codecs.open(outfile, 'w', 'utf-8') as fout:
+            text = fin.read()
+            otext = clean_text(text)
+            res = t.parse(otext)
+            fout.write(res)
+
     return outfile
 
 # 読み込んで解析器に渡し結果を受け取りそれを書き出すまで，すべてutf-8の文字列で行っている
 
 # 解析結果のファイルを読み込む
 def get_m_lines(file):
-    with open(file, 'r') as f: # 解析結果のファイルを開く
+    with codecs.open(file, 'r', 'utf-8', 'ignore') as f: # 解析結果のファイルを開く
         m_lines = f.read().split('\n') # 読み込んで，改行で分割
 
         # m_linesの最後2つの要素はEOSと空白なのでカットしておく
