@@ -67,7 +67,7 @@ def getDescriptionTextFromItemsbox(url):
     return des
 
 # Scraping from local directory
-def scrapingFromLocalDirectory(directoryPath):
+def scrapingFromLocalDirectory(directoryPath, df):
     tmpHtmlList = sorted(
         glob.glob(directoryPath), key=os.path.getmtime)
 
@@ -78,7 +78,7 @@ def scrapingFromLocalDirectory(directoryPath):
     return df
 
 # scraping pages, paramter is URL
-def scrapelToGetDescription(num_page, url, df):
+def scrapelToGetDescription(num_page, url):
     browser1.get(url)
     page = 1
     des = ""
@@ -148,6 +148,8 @@ def crowling(num_page, url, df):
             print("no pager exist anymore")
             break
 
+    return df
+
 ############################
 ###### Process        ######
 ############################
@@ -172,7 +174,6 @@ browser2 = webdriver.Chrome(executable_path='/usr/bin/chromedriver')
 df = pandas.read_csv(stringCsvFileName, index_col=0)
 
 query = args[1]
-
 dataSetName = "{0}_{1}".format(query, today)
 
 # Create tmp directory date + query
@@ -199,9 +200,9 @@ if (argc == 3):
     elif (args[2] == "--getdtl"):
         # Get item detail
         print("Option: --getdtl")
-        df = scrapelToGetDescription(num_page=20, url=webUrl, df=df)
+        text = scrapelToGetDescription(num_page=20, url=webUrl)
         with open(stringPathToDatum + dataSetName + ".txt", 'ab') as f:
-            f.write(df.encode('utf-8', 'ignore'))
+            f.write(text.encode('utf-8', 'ignore'))
     
     else:
         print("invalid option")
