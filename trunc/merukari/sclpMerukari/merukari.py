@@ -8,6 +8,7 @@ import datetime
 import random
 import string
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../lib')
 from const import *
@@ -165,10 +166,12 @@ if (argc <  2):
 today = datetime.date.today()
 
 # Initialize browser
-#browser1 = webdriver.PhantomJS()
-#browser2 = webdriver.PhantomJS()
-browser1 = webdriver.Chrome(executable_path='/usr/bin/chromedriver')
-browser2 = webdriver.Chrome(executable_path='/usr/bin/chromedriver')
+options = Options()
+options.add_argument('--headless')
+browser1 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
+browser2 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
+#browser1 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
+#browser2 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
 
 # Read csv file
 df = pandas.read_csv(stringCsvFileName, index_col=0)
@@ -196,14 +199,14 @@ if (argc == 3):
         print("Option: --scrape")
         df = scrapingFromLocalDirectory(stringPathToTmpHtml + dataSetName + "/*", df=df)
         df.to_csv(stringPathToDatum + dataSetName + ".csv", encoding="utf-8", sep='\t')
-    
+
     elif (args[2] == "--getdtl"):
         # Get item detail
         print("Option: --getdtl")
         text = scrapelToGetDescription(num_page=20, url=webUrl)
         with open(stringPathToDatum + dataSetName + ".txt", 'ab') as f:
             f.write(text.encode('utf-8', 'ignore'))
-    
+
     else:
         print("invalid option")
 else:
