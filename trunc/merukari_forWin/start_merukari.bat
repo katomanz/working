@@ -7,7 +7,9 @@ echo %USR_INPUT_STR% ‚ğŒŸõ‚µ‚Ü‚·B
 
 cd /d "C:\merukari\pkg"
 
-start merukari.exe %USR_INPUT_STR%
+call merukari.exe %USR_INPUT_STR%
+
+explorer C:\merukari\pkg\datum
 
 pause
 
