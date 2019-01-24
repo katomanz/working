@@ -17,20 +17,57 @@ from utility import *
 ############################
 ###### Function       ######
 ############################
-def getSeriesFromItemsbox(url):
+def getSeriesFromItemsbox(url, price):
     # Load URL to browser
     browser2.get(url)
 
     # Get title
     title = getText_find_element_by_css_selector(browser2, stringItemName)
 
-    # Get price
-    price = getText_find_element_by_css_selector(browser2, stringItemPrice)
-    price = price.replace("¥ ", "").replace(",", "")
+    # Get URL
+    pageUrl = url[:url.rfind('?')-1]
+
+    # Get Owner
+    trs = browser2.find_element_by_class_name(stringItemDetailTable).find_elements_by_css_selector("tr")
+    for tr in trs:
+        strTh = getText_find_element_by_css_selector(tr,"th")
+        if (strTh == stringOwner_Utf8):
+            owner = getText_find_element_by_css_selector(tr,"td a")
+
+    isSold = 0
+    if len(getText_find_element_by_css_selector(browser2, stringItemSoldOutBadge)) > 0:
+        isSold = 1
+
+    # Get sub category and sub-sub category
+    sub_category     = getText_find_element_by_css_selector(browser2, stringItemDetailTableSubCategory)
+    sub_sub_category = getText_find_element_by_css_selector(browser2, stringItemDetailTableSubSubCategory)
+
+    # Get brand name
+    trs = browser2.find_element_by_class_name("item-box-container").find_elements_by_css_selector("tr")
+    for tr in trs:
+        strTh = getText_find_element_by_css_selector(tr,"th")
+        if (strTh == stringBrand_Utf8):
+            brand = getText_find_element_by_css_selector(tr,"td")
+
+    se = pandas.Series([title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,owner],
+                       ['title','price','sold','url','sub_category','sub_sub_category','brand','owner'])
+    se.str.encode(encoding="utf-8")
+    return se
+
+def getSeriesFromItemsboxFromLocalDirectory(url):
+    # Load URL to browser
+    browser2.get(url)
+
+    # Get title
+    title = getText_find_element_by_css_selector(browser2, stringItemName)
 
     # Get URL
     pageUrl = stringBaseUrl + url[url.rfind('/')+1:]
     pageUrl = pageUrl.replace(".html","")
+
+    # Get price
+    price = getText_find_element_by_css_selector(browser2, stringItemPrice)
+    price = price.replace("¥ ", "").replace(",", "")
 
     # Get Owner
     trs = browser2.find_element_by_class_name(stringItemDetailTable).find_elements_by_css_selector("tr")
@@ -74,7 +111,7 @@ def scrapingFromLocalDirectory(directoryPath, df):
 
     for tmpHtml in tmpHtmlList:
         tmp = "file:///" + os.getcwd() + "/" + tmpHtml
-        se = getSeriesFromItemsbox(tmp)
+        se = getSeriesFromItemsboxFromLocalDirectory(tmp)
         df = df.append(se, ignore_index=True)
     return df
 
@@ -134,7 +171,10 @@ def crowling(num_page, url, df):
                 saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/", itemID + ".html")
 
                 ## Scraping without tmp html
-                se = getSeriesFromItemsbox(url)
+                priceBox = getText_find_element_by_css_selector(post, ".items-box-price")
+                priceBox = priceBox.replace("¥ ", "").replace(",", "")
+
+                se = getSeriesFromItemsbox(url, priceBox)
                 df = df.append(se, ignore_index=True)
 
             # Increment page number
@@ -173,9 +213,6 @@ browser2 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/ch
 #browser1 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
 #browser2 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
 
-# Read csv file
-df = pandas.read_csv(stringCsvFileName, index_col=0)
-
 query = args[1]
 dataSetName = "{0}_{1}".format(query, today)
 
@@ -197,6 +234,7 @@ if (argc == 3):
     if (args[2] == "--scrape"):
         # Scraping
         print("Option: --scrape")
+        df = pandas.read_csv(stringCsvFileName, index_col=0)
         df = scrapingFromLocalDirectory(stringPathToTmpHtml + dataSetName + "/*", df=df)
         df.to_csv(stringPathToDatum + dataSetName + ".csv", encoding="utf-8", sep='\t')
 
@@ -212,6 +250,8 @@ if (argc == 3):
 else:
     # Continue to crowling until specified page
     print("Option: default")
+    # Read csv file
+    df = pandas.read_csv(stringCsvFileName, index_col=0)
     df = crowling(num_page=20, url=webUrl, df=df)
     df.to_csv(stringPathToDatum + dataSetName + ".csv", encoding="utf-8", sep='\t')
 
