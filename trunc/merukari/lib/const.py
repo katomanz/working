@@ -90,6 +90,10 @@ stringForLink1="<a href=\""
 stringForLink2="\" target=\"_blank\">"
 stringForLink3="</a>"
 
+# string for link img
+stringForImgLink1="<img src=\""
+stringForImgLink2="\" alt=\"TAG index\" border=\"0\" width=\"100\" height=\"100\""
+
 # Path to tmpHtml
 stringPathToAnalizeTmpHtml="./analize/tmpHtml/"
 
