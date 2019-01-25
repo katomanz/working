@@ -47,6 +47,10 @@ csv_data['stringForLink2'] = stringForLink2
 csv_data['stringForLink3'] = stringForLink3
 csv_data['tileWithLink'] = csv_data['stringForLink1'] + csv_data['url'] + csv_data['stringForLink2'] + csv_data['title'] + csv_data['stringForLink3']
 
+# Added imgUrl column
+for  index, row in csv_data.iterrows():
+    csv_data.at[index,'imgUrl'] = stringForImgLink1 + csv_data.at[index,'imgUrl'] + stringForImgLink2
+
 csv_data['brand-sub_sub_category'] = csv_data['brand'] + ' + ' + csv_data['sub_sub_category']
 
 # Get top 20 brand-sub_sub_bategory

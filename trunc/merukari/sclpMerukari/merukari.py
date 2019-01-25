@@ -48,9 +48,10 @@ def getSeriesFromItemsbox(url, price):
         strTh = getText_find_element_by_css_selector(tr,"th")
         if (strTh == stringBrand_Utf8):
             brand = getText_find_element_by_css_selector(tr,"td")
-
-    se = pandas.Series([title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,owner],
-                       ['title','price','sold','url','sub_category','sub_sub_category','brand','owner'])
+    # Get imgUrl
+    imgUrl = browser2.find_element_by_class_name("owl-item-inner").find_element_by_class_name("owl-lazy").get_attribute("data-src")
+    se = pandas.Series([title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,owner,imgUrl],
+                       ['title','price','sold','url','sub_category','sub_sub_category','brand','owner','imgUrl'])
     se.str.encode(encoding="utf-8")
     return se
 
