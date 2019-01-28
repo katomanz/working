@@ -8,6 +8,7 @@ from datetime import datetime
 import random
 import string
 from decimal import (Decimal, ROUND_DOWN)
+import pytz
 
 # format of csv file
 stringCsvFileName="default.csv"
@@ -73,9 +74,11 @@ for index, row in can_csv.iterrows():
         oddmeter = int(odd_pre + odd_post, 16)
     if (num == 60):
         unitime = can_csv.at[index, 'time']
-        timestamp = str(datetime.utcfromtimestamp(float(unitime)))
+        timestamp = str(datetime.fromtimestamp(float(unitime)))
+        timestamp_utc = str(datetime.utcfromtimestamp(float(unitime)))
         gprmcStr = "$GPRMC,"
-        hhmmss = timestamp[11:19].replace(':', '')
+        hhmmss = timestamp_utc[11:19].replace(':', '')
+        gprm = ""
         # hairetsu no naka kara tokuteino mojiretsu no haitta gyou wo sagasu
         for line in lines:
             if gprmcStr+hhmmss in line.decode('utf-8', 'ignore'):
