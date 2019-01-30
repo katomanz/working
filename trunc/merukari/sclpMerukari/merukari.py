@@ -208,6 +208,7 @@ today = datetime.date.today()
 
 # Initialize browser
 options = Options()
+options.add_argument('--blink-settings=imagesEnabled=false')
 options.add_argument('--headless')
 browser1 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
 browser2 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
