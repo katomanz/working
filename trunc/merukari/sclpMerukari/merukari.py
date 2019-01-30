@@ -13,6 +13,7 @@ from selenium.common.exceptions import NoSuchElementException
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../lib')
 from const import *
 from utility import *
+from bs4 import BeautifulSoup
 
 ############################
 ###### Function       ######
@@ -20,6 +21,11 @@ from utility import *
 def getSeriesFromItemsbox(url, price):
     # Load URL to browser
     browser2.get(url)
+    
+    ##  Save Html files just in case
+    itemID = url.replace(stringBaseUrl, '').split('/')
+    soup = BeautifulSoup(browser2.page_source, 'html.parser')
+    saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/", itemID[0] + ".html")
 
     # Get title
     title = getText_find_element_by_css_selector(browser2, stringItemName)
@@ -164,12 +170,6 @@ def crowling(num_page, url, df):
 
             for post in posts:
                 url = post.find_element_by_css_selector("a").get_attribute("href")
-
-                ## Crowling and save Html files just in case
-                soup = getHtmlFromItemsbox(browser2, url)
-                itemIDs = url.replace(stringBaseUrl, '').split('/')
-                itemID = itemIDs[0]
-                saveHtmlFile(soup, stringPathToTmpHtml + dataSetName + "/", itemID + ".html")
 
                 ## Scraping without tmp html
                 priceBox = getText_find_element_by_css_selector(post, ".items-box-price")
