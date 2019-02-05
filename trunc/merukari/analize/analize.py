@@ -38,7 +38,7 @@ dataSetName = query.replace(".csv", "")
 if os.path.isdir(stringPathToAnalizeTmpHtml + dataSetName) != True:
     os.mkdir(stringPathToAnalizeTmpHtml + dataSetName)
 
-csv_data = pd.read_table(stringPathToDatum + query)
+csv_data = pd.read_csv(stringPathToDatum + query, sep='\t')
 csv_data.fillna('No Brand', inplace=True)
 
 # Added new columns for link columns
