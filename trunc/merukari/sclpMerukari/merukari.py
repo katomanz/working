@@ -7,6 +7,8 @@ import time
 import datetime
 import random
 import string
+import requests
+import json
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
@@ -56,10 +58,19 @@ def getSeriesFromItemsbox(url, price):
             brand = getText_find_element_by_css_selector(tr,"td")
     # Get imgUrl
     imgUrl = browser2.find_element_by_class_name("owl-item-inner").find_element_by_class_name("owl-lazy").get_attribute("data-src")
+    timestamp = getItemTimeStamp(imgUrl)
     se = pandas.Series([title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,owner,imgUrl],
                        ['title','price','sold','url','sub_category','sub_sub_category','brand','owner','imgUrl'])
     se.str.encode(encoding="utf-8")
     return se
+
+def getItemTimeStamp(url):
+    r = requests.get(url)
+    resJson = r.headers
+    loadedJson = json.load(resJson)
+    timestamp = loadedJson["Last-Modified"]
+    print(timestamp)
+    return timestamp
 
 def getSeriesFromItemsboxFromLocalDirectory(url):
     # Load URL to browser
@@ -210,6 +221,7 @@ today = datetime.date.today()
 options = Options()
 options.add_argument('--blink-settings=imagesEnabled=false')
 options.add_argument('--headless')
+
 browser1 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
 browser2 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
 #browser1 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
