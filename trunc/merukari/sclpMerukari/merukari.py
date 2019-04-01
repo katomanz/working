@@ -58,17 +58,17 @@ def getSeriesFromItemsbox(url, price):
             brand = getText_find_element_by_css_selector(tr,"td")
     # Get imgUrl
     imgUrl = browser2.find_element_by_class_name("owl-item-inner").find_element_by_class_name("owl-lazy").get_attribute("data-src")
-    timestamp = getItemTimeStamp(imgUrl)
-    se = pandas.Series([title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,owner,imgUrl],
-                       ['title','price','sold','url','sub_category','sub_sub_category','brand','owner','imgUrl'])
+    post_timestamp = getItemPostTimeStamp(imgUrl)
+    se = pandas.Series([post_timestamp, title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,owner,imgUrl],
+                       ['post_timestamp','title','price','sold','url','sub_category','sub_sub_category','brand','owner','imgUrl'])
     se.str.encode(encoding="utf-8")
     return se
 
-def getItemTimeStamp(url):
-    r = requests.get(url)
+def getItemPostTimeStamp(url):
+    r = requests.head(url)
     resJson = r.headers
-    loadedJson = json.load(resJson)
-    timestamp = loadedJson["Last-Modified"]
+    loadedDict = dict(resJson)
+    timestamp = loadedDict["Last-Modified"]
     print(timestamp)
     return timestamp
 
