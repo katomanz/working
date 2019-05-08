@@ -16,3 +16,4 @@ class Notification:
         payload = {'message': message}
         headers = {'Authorization': 'Bearer ' + os.environ["LINE_NOTIFY_TOKEN"]}
         line_notify = requests.post(line_notify_api, data=payload, headers=headers)
+    

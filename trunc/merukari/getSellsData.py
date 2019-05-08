@@ -32,7 +32,7 @@ del d
 # Analyse data file
 print("Let's start analysing!")
 a = Analyze()
-htmlFilename = a.analyzeCsvData("古着_2019-05-05.csv")
+htmlFilename = a.analyzeCsvData(filename)
 
 # Upload csv
 d = DataUpload()
