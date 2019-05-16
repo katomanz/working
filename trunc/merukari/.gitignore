@@ -1,3 +1,7 @@
 datum/
 sclpMerukari/tmpHtml/
-debug.log
+*.log
+lib/__pycache__/
+dataUpload/__pycache__/
+sclpMerukari/__pycache__/
+analize/__pycache__/
