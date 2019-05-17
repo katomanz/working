@@ -5,43 +5,43 @@ from notification import Notification
 import sys
 import os
 import time
+import argparse
 
 # For calculate process time
 start_time = time.time()
 
-args = sys.argv
-argc = len(args)
-# Check parameter
-if (argc != 2):
-    print ('Usage: # python %s csv_filename_to_analize' % args[0])
-    quit()
+# Initialize parameter
+parser = argparse.ArgumentParser(description='Extract data from mercari')
+parser.add_argument('query', help='Input keyword of Search')
+parser.add_argument('-s', '--scrape', action='store_true')
+parser.add_argument('-g', '--getdtl', action='store_true')
 
-# Check and set directory name
-query = args[1]
+args = parser.parse_args()
 
 # Scraping
 print("Let's start searching!")
 m = Merukari()
-filename = m.getMerukariCSV(query, argc, args)
+filename = m.getMerukariCSV(args.query, args)
 
-# Upload csv
-d = DataUpload()
-d.dataUploadFileName(filename)
-del d
+if (args.scrape == False and args.getdtl == False):
+    # Upload csv
+    d = DataUpload()
+    d.dataUploadFileName(filename)
+    del d
 
-# Analyse data file
-print("Let's start analysing!")
-a = Analyze()
-htmlFilename = a.analyzeCsvData(filename)
+    # Analyse data file
+    print("Let's start analysing!")
+    a = Analyze()
+    htmlFilename = a.analyzeCsvData(filename)
 
-# Upload csv
-d = DataUpload()
-d.dataUploadFileName(htmlFilename)
-del d
+    # Upload csv
+    d = DataUpload()
+    d.dataUploadFileName(htmlFilename)
+    del d
 
-# Send notification
-n = Notification()
-n.sendNotification(query, filename, htmlFilename)
+    # Send notification
+    n = Notification()
+    n.sendNotification(query, filename, htmlFilename)
 
 # Output process time 
 elapsed_time = time.time() - start_time

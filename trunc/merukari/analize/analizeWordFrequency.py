@@ -8,9 +8,12 @@ from collections import OrderedDict
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../lib')
 from cleaning import *
 
+def lower_text(text):
+    return text.lower()
+
 # Parse infile 文章を解析して，結果をoutfileに出力
 def morph_analysis(infile, outfile):
-    t = MeCab.Tagger('mecabrc')
+    t = MeCab.Tagger ('-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd')
     with codecs.open(infile, 'r', 'utf-8',) as fin:
         with codecs.open(outfile, 'w', 'utf-8') as fout:
             text = fin.read()
@@ -43,7 +46,7 @@ def noun_ha(mlines):
 
     for i in range(len(morphs)):
         if morphs[i]['pos'] == '名詞':
-            key = morphs[i]['surface'] #その名詞をキーとする
+            key = lower_text( morphs[i]['surface']) #その名詞をキーとする
             hist[key] = hist.get(key,0) + 1 #もし、まだそのkeyが存在しなかったら(=初めて出現したら),デフォルト値を0と考えて1を足す。
 
     for noun in hist: #キーを取り出す

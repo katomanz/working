@@ -24,8 +24,8 @@ class Analyze:
     def analyzeCsvData(self, csvFileName):
 
         dataSetName = csvFileName.rstrip(".csv")
-        # Create tmp directory date + dataSetName
 
+        # Create tmp directory date + dataSetName
         if os.path.isdir(stringPathToAnalizeTmpHtml + dataSetName) != True:
             os.mkdir(stringPathToAnalizeTmpHtml + dataSetName)
 
@@ -39,7 +39,7 @@ class Analyze:
         csv_data['tileWithLink'] = csv_data['stringForLink1'] + csv_data['url'] + csv_data['stringForLink2'] + csv_data['title'] + csv_data['stringForLink3']
 
         # Added imgUrl column
-        for  index, row in csv_data.iterrows():
+        for index, row in csv_data.iterrows():
             csv_data.at[index,'imgUrl'] = stringForImgLink1 + csv_data.at[index,'imgUrl'] + stringForImgLink2
 
         csv_data['brand-sub_sub_category'] = csv_data['brand'] + ' + ' + csv_data['sub_sub_category']

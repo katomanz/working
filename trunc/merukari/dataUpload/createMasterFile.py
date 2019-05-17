@@ -18,7 +18,6 @@ class createMasterFile:
     data_location = "./tmp/"
     def __init__(self):
         pd.set_option('display.max_columns', 50)
-        #pd.set_option("display.max_colwidth", 200)
         pass
 
     def __del__(self):

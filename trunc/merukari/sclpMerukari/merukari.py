@@ -170,7 +170,7 @@ class Merukari:
 
                 posts = self.browser1.find_elements_by_css_selector(".items-box")
                 # Get next page url
-                btn = browser1.find_element_by_css_selector(
+                btn = self.browser1.find_element_by_css_selector(
                     "li.pager-next .pager-cell:nth-child(1) a").get_attribute("href")
 
                 for post in posts:
@@ -228,7 +228,7 @@ class Merukari:
 
         return df
 
-    def getMerukariCSV(self, query, argc, args):
+    def getMerukariCSV(self, query, args):
         # Get date
         today = datetime.date.today()
 
@@ -248,23 +248,19 @@ class Merukari:
         if os.path.isdir(stringPathToTmpHtml + self.dataSetName) != True:
             os.mkdir(stringPathToTmpHtml + self.dataSetName)
 
-        if (argc == 3):
-            if (args[2] == "--scrape"):
-                # Scraping
-                print("Option: --scrape")
-                df = pandas.read_csv(stringCsvFileName, index_col=0)
-                df = self.scrapingFromLocalDirectory(stringPathToTmpHtml + self.dataSetName + "/*", df=df)
-                df.to_csv(stringPathToDatum + self.dataSetName + ".csv", encoding="utf-8", sep='\t')
+        if (args.scrape == True):
+            # Scraping
+            print("Option: --scrape")
+            df = pandas.read_csv(stringCsvFileName, index_col=0)
+            df = self.scrapingFromLocalDirectory(stringPathToTmpHtml + self.dataSetName + "/*", df=df)
+            df.to_csv(stringPathToDatum + self.dataSetName + ".csv", encoding="utf-8", sep='\t')
 
-            elif (args[2] == "--getdtl"):
-                # Get item detail
-                print("Option: --getdtl")
-                text = self.scrapelToGetDescription(num_page=30, url=webUrl)
-                with open(stringPathToDatum + self.dataSetName + ".txt", 'ab') as f:
-                    f.write(text.encode('utf-8', 'ignore'))
-
-            else:
-                print("invalid option")
+        elif (args.getdtl == True):
+            # Get item detail
+            print("Option: --getdtl")
+            text = self.scrapelToGetDescription(num_page=30, url=webUrl)
+            with open(stringPathToDatum + self.dataSetName + ".txt", 'ab') as f:
+                f.write(text.encode('utf-8', 'ignore'))
         else:
             # Continue to crowling until specified page
             print("Option: default")
