@@ -37,6 +37,9 @@ class Merukari:
 
     def __del__(self):
         print("Merukari() is disposed")
+        # Close browser
+        self.browser1.quit()
+        self.browser2.quit()
         
     def getUrl(self, browser, url):
         try:
@@ -268,10 +271,6 @@ class Merukari:
             df = pandas.read_csv(stringCsvFileName, index_col=0)
             df = self.crowling(num_page=20, url=webUrl, df=df)
             df.to_csv(stringPathToDatum + self.dataSetName + ".csv", encoding="utf-8", sep='\t')
-
-        # Close browser
-        self.browser1.quit()
-        self.browser2.quit()
 
         # Return csv file name
         return self.dataSetName + ".csv"

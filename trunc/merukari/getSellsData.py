@@ -41,7 +41,7 @@ if (args.scrape == False and args.getdtl == False):
 
     # Send notification
     n = Notification()
-    n.sendNotification(query, filename, htmlFilename)
+    n.sendNotification(args.query, filename, htmlFilename)
 
 # Output process time 
 elapsed_time = time.time() - start_time
