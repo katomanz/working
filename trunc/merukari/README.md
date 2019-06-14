@@ -26,3 +26,13 @@ $ pip3 install -r requirement.txt
 export GOOGLEDRV_FLDR_ID="FILEWOAGETAI_GOOGLEDRIVENOFOLDERID"
 export LINE_NOTIFY_TOKEN="NINSYOUPAGEDE_DETEKITA_LINE_TOKEN"
 ```
+#### 設定/出力結果
+- sclpMerukari/merukari.pyを編集すること検索条件を編集可能。
+- 現在指定されている設定は以下。
+  - カテゴリの指定(デフォルト値: メンズ)
+  - 売買金額下限(デフォルト値: 3000円)
+  - 商品の状態(デフォルト値: 新品未使用)
+  - 売り切れ商品かどうか(デフォルト値: 売り切れ)
+- 出力結果ファイル名:「検索ワード_検索日.csv」
+- 出力場所: "/datum"
+- メルカリ検索ページの20ページ分(900件弱)のデータを抽出
