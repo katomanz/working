@@ -15,6 +15,9 @@ python 3.6 で動作確認。
 #### セットアップ
 1. Google Chrome Driver のインストールと設置
 1. pip install で必要ライブラリのインストール
+```
+$ pip3 install -r requirement.txt
+```
 1. Google Driveの認証設定
 1. LINE Notifyの認証設定
 1. .bashrcに環境変数の設定
