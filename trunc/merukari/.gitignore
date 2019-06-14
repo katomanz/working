@@ -1,5 +1,3 @@
-datum/
-sclpMerukari/tmpHtml/
 *.log
 lib/__pycache__/
 dataUpload/__pycache__/
