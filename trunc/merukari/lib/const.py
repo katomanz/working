@@ -43,7 +43,23 @@ stringStatusOnSale="status_on_sale"
 stringPriceMin="price_min"
 stingPriceMinValue="3000"
 
-stringItemStatus="item_condition_id[1]"
+# Identifer for Item Condition Shinpin
+stringItemStatusBrandNew="item_condition_id[1]"
+
+# Identifer for Item Condition Mishiyou ni chikai
+stringItemStatusMishiyouNiChikai="item_condition_id[2]"
+
+# Identifer for Item Condition Medatta kizu yogore nashi
+stringItemStatusMedattaKizuYogoreNashi="item_condition_id[3]"
+
+# Identifer for Item Condition yaya kizu ya yogore ari
+stringItemStatusYayaKizuYaYogoreAri="item_condition_id[4]"
+
+# Identifer for Item Condition kizu ya yogore ari
+stringItemStatusKizuYaYogoreAri="item_condition_id[5]"
+
+# Identifer for Item Condition zenntai tekini joutai ga warui
+stringItemStatusZenntaiTekiniJoutaiGaWarui="item_condition_id[6]"
 
 # Identifer for keyword
 stringKeyword="keyword"

@@ -30,17 +30,17 @@ class Merukari:
         options.add_argument('--blink-settings=imagesEnabled=false')
         options.add_argument('--headless')
 
-        self.browser1 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
-        self.browser2 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
-        #browser1 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
-        #browser2 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
+        #self.browser1 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
+        #self.browser2 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
+        self.browser1 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
+        self.browser2 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
 
     def __del__(self):
         print("Merukari() is disposed")
         # Close browser
         self.browser1.quit()
         self.browser2.quit()
-        
+
     def getUrl(self, browser, url):
         try:
             browser.get(url)
@@ -48,10 +48,37 @@ class Merukari:
             print(e)
             pass
 
+    def getWebUrl(self, args, query):
+        # Furugi Search
+        if args.furugi == True:
+            # Return URL, Setting of serch setting
+            return (stringMerikariUrl + stringSerch +
+                "?" + stringSortOrder +                         "=" + stringCreatedDesc +  # Sort
+                "&" + stringCategoryRoot +                      "=" + "2"               +  # root category 1=lady's 2=men's
+                "&" + stringStatusTradingSoldOut +              "=" + "1"               +  # Status "sold out"
+                #"&" + stringStatusOnSale +                     "=" + "1" +                # Status "On sale"
+                "&" + stringPriceMin +                          "=" + stingPriceMinValue + # Minimum price
+                "&" + stringItemStatusMishiyouNiChikai +        "=" + "1"               +  # Status of Item
+                "&" + stringItemStatusMedattaKizuYogoreNashi +  "=" + "1"               +  # Status of Item
+                "&" + stringItemStatusYayaKizuYaYogoreAri +     "=" + "1"               +  # Status of Item
+                "&" + stringKeyword +                           "=" + "{}".format(query))  # Keyword
+
+        # Brand New Search
+        else:
+            # Return URL, Setting of serch setting
+            return (stringMerikariUrl + stringSerch +
+                "?" + stringSortOrder +            "=" + stringCreatedDesc +  # Sort
+                "&" + stringCategoryRoot +         "=" + "2"               +  # root category 1=lady's 2=men's
+                "&" + stringStatusTradingSoldOut + "=" + "1"               +  # Status "sold out"
+                #"&" + stringStatusOnSale +         "=" + "1" +                # Status "On sale"
+                "&" + stringPriceMin +             "=" + stingPriceMinValue + # Minimum price
+                "&" + stringItemStatusBrandNew +   "=" + "1"               +  # Status of Item
+                "&" + stringKeyword +              "=" + "{}".format(query))  # Keyword
+
     def getSeriesFromItemsbox(self, url, price):
         # Load URL to browser
         self.getUrl(self.browser2, url)
-        
+
         ##  Save Html files just in case
         itemID = url.replace(stringBaseUrl, '').split('/')
         soup = BeautifulSoup(self.browser2.page_source, 'html.parser')
@@ -237,15 +264,8 @@ class Merukari:
 
         self.dataSetName = "{0}_{1}".format(query, today)
 
-        # Get URL, Setting of serch setting
-        webUrl = (stringMerikariUrl + stringSerch +
-        "?" + stringSortOrder +            "=" + stringCreatedDesc +  # Sort
-        "&" + stringCategoryRoot +         "=" + "2"               +  # root category 1=lady's 2=men's
-        "&" + stringStatusTradingSoldOut + "=" + "1"               +  # Status "sold out"
-        #"&" + stringStatusOnSale +         "=" + "1" +                # Status "On sale"
-        "&" + stringPriceMin +             "=" + stingPriceMinValue + # Minimum price
-        "&" + stringItemStatus +           "=" + "1"               +  # Status of Item
-        "&" + stringKeyword +              "=" + "{}".format(query))  # Keyword
+        webUrl = self.getWebUrl(args, query)
+        print(webUrl)
 
         # Create tmp directory date + query
         if os.path.isdir(stringPathToTmpHtml + self.dataSetName) != True:

@@ -15,6 +15,7 @@ parser = argparse.ArgumentParser(description='Extract data from mercari')
 parser.add_argument('query', help='Input keyword of Search')
 parser.add_argument('-s', '--scrape', action='store_true')
 parser.add_argument('-g', '--getdtl', action='store_true')
+parser.add_argument('-f', '--furugi', action='store_true')
 
 args = parser.parse_args()
 
@@ -43,6 +44,6 @@ if (args.scrape == False and args.getdtl == False):
     n = Notification()
     n.sendNotification(args.query, filename, htmlFilename)
 
-# Output process time 
+# Output process time
 elapsed_time = time.time() - start_time
 print("Elapsed time is {0}".format(elapsed_time) + "[sec]")
