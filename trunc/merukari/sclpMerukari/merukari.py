@@ -49,12 +49,15 @@ class Merukari:
             pass
 
     def getWebUrl(self, args, query):
+        MLflg = 2 # Default is men's
+        if args.ladies == True:
+            MLflg = 1
         # Furugi Search
         if args.furugi == True:
             # Return URL, Setting of serch setting
             return (stringMerikariUrl + stringSerch +
                 "?" + stringSortOrder +                         "=" + stringCreatedDesc +  # Sort
-                "&" + stringCategoryRoot +                      "=" + "2"               +  # root category 1=lady's 2=men's
+                "&" + stringCategoryRoot +                      "=" + str(MLflg)        +  # root category 1=lady's 2=men's
                 "&" + stringStatusTradingSoldOut +              "=" + "1"               +  # Status "sold out"
                 #"&" + stringStatusOnSale +                     "=" + "1" +                # Status "On sale"
                 "&" + stringPriceMin +                          "=" + stingPriceMinValue + # Minimum price
@@ -68,7 +71,7 @@ class Merukari:
             # Return URL, Setting of serch setting
             return (stringMerikariUrl + stringSerch +
                 "?" + stringSortOrder +            "=" + stringCreatedDesc +  # Sort
-                "&" + stringCategoryRoot +         "=" + "2"               +  # root category 1=lady's 2=men's
+                "&" + stringCategoryRoot +         "=" + str(MLflg)        +  # root category 1=lady's 2=men's
                 "&" + stringStatusTradingSoldOut + "=" + "1"               +  # Status "sold out"
                 #"&" + stringStatusOnSale +         "=" + "1" +                # Status "On sale"
                 "&" + stringPriceMin +             "=" + stingPriceMinValue + # Minimum price

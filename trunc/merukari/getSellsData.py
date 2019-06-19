@@ -16,6 +16,7 @@ parser.add_argument('query', help='Input keyword of Search')
 parser.add_argument('-s', '--scrape', action='store_true')
 parser.add_argument('-g', '--getdtl', action='store_true')
 parser.add_argument('-f', '--furugi', action='store_true')
+parser.add_argument('-l', '--ladies', action='store_true')
 
 args = parser.parse_args()
 
