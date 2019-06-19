@@ -30,10 +30,12 @@ class Merukari:
         options.add_argument('--blink-settings=imagesEnabled=false')
         options.add_argument('--headless')
 
-        #self.browser1 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
-        #self.browser2 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
-        self.browser1 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
-        self.browser2 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
+        self.browser1 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
+        self.browser2 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
+        #browser1 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
+        #browser2 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
+        self.browser1.implicitly_wait(5)
+        self.browser2.implicitly_wait(5)
 
     def __del__(self):
         print("Merukari() is disposed")
@@ -98,7 +100,8 @@ class Merukari:
         for tr in trs:
             strTh = getText_find_element_by_css_selector(tr,"th")
             if (strTh == stringOwner_Utf8):
-                owner = getText_find_element_by_css_selector(tr,"td a")
+                ownerName = getText_find_element_by_css_selector(tr,"td a")
+                ownerId = tr.find_element_by_css_selector("td a").get_attribute("href")
 
         isSold = 0
         if len(getText_find_element_by_css_selector(self.browser2, stringItemSoldOutBadge)) > 0:
@@ -117,8 +120,8 @@ class Merukari:
         # Get imgUrl
         imgUrl = self.browser2.find_element_by_class_name("owl-item-inner").find_element_by_class_name("owl-lazy").get_attribute("data-src")
         post_timestamp = self.getItemPostTimeStamp(imgUrl)
-        se = pandas.Series([post_timestamp, title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,owner,imgUrl],
-                        ['post_timestamp','title','price','sold','url','sub_category','sub_sub_category','brand','owner','imgUrl'])
+        se = pandas.Series([post_timestamp, title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,ownerName,ownerId,imgUrl],
+                        ['post_timestamp','title','price','sold','url','sub_category','sub_sub_category','brand','ownerName','ownerId','imgUrl'])
         se.str.encode(encoding="utf-8")
         return se
 
@@ -145,13 +148,13 @@ class Merukari:
         price = getText_find_element_by_css_selector(self.browser2, stringItemPrice)
         price = price.replace("¥ ", "").replace(",", "")
 
-        # Get Owner
+        # Get Owner Name and ID
         trs = self.browser2.find_element_by_class_name(stringItemDetailTable).find_elements_by_css_selector("tr")
         for tr in trs:
             strTh = getText_find_element_by_css_selector(tr,"th")
             if (strTh == stringOwner_Utf8):
-                owner = getText_find_element_by_css_selector(tr,"td a")
-
+                ownerName = getText_find_element_by_css_selector(tr,"td a")
+                
         isSold = 0
         if len(getText_find_element_by_css_selector(self.browser2, stringItemSoldOutBadge)) > 0:
             isSold = 1
@@ -167,8 +170,8 @@ class Merukari:
             if (strTh == stringBrand_Utf8):
                 brand = getText_find_element_by_css_selector(tr,"td")
 
-        se = pandas.Series([title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,owner],
-                        ['title','price','sold','url','sub_category','sub_sub_category','brand','owner'])
+        se = pandas.Series([title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,ownerName,ownerId],
+                        ['title','price','sold','url','sub_category','sub_sub_category','brand','ownerName', 'ownerId'])
         se.str.encode(encoding="utf-8")
         return se
 
@@ -239,11 +242,11 @@ class Merukari:
 
                 for post in posts:
                     url = post.find_element_by_css_selector("a").get_attribute("href")
-
                     ## Scraping without tmp html
                     priceBox = getText_find_element_by_css_selector(post, ".items-box-price")
+                    priceBox = post.find_element_by_css_selector(".items-box-price").text
                     priceBox = priceBox.replace("¥ ", "").replace(",", "")
-
+                    #print(priceBox)
                     se = self.getSeriesFromItemsbox(url, priceBox)
                     df = df.append(se, ignore_index=True)
 
