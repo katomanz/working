@@ -6,9 +6,6 @@ stringForLink1="<a href=\""
 stringForLink2="\" target=\"_blank\">"
 stringForLink3="</a>"
 
-# Path to tmpHtml
-#stringPathToTmpHtml="./analize/tmpHtml/"
-
 # String for details
 stringForDetailsStart="<details>"
 
@@ -99,7 +96,6 @@ stringItemDetailTableSubSubCategory=".item-detail-table-sub-sub-category"
 
 # string item sold out badge
 stringItemSoldOutBadge=".item-sold-out-badge"
-
 
 # string for link
 stringForLink1="<a href=\""
