@@ -12,9 +12,6 @@ import json
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/lib')
-from const import *
-from utility import *
 from bs4 import BeautifulSoup
 
 
@@ -80,7 +77,7 @@ password.send_keys(os.environ["PASSWORD"])
 while True:
     time.sleep(10)
     print(browser1.current_url)
-    if u"過去の売上履歴" in browser1.page_source:
+    if u"売上履歴" in browser1.page_source:
         print('Log-in dekitane! Watshi Ureshii!!')
         break
 
