@@ -14,8 +14,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 from bs4 import BeautifulSoup
 
-
-
 stringTitleSalesHistory = u"過去の売上履歴"
 stringForItemUtf8 = u"商品"
 stringForSalesFeeUtf8 = u"販売手数料"
@@ -41,7 +39,7 @@ def getText_find_element_by_css_selector(browser, cssSel):
 def getTransactionDataFromItemsLink(url):
     # Load URL to browser
     browser1.get(url)
-    
+
     rows = browser1.find_elements_by_class_name("transact-info-table-row")
     for row in rows:
         columns = row.find_elements_by_class_name("transact-info-table-cell")
@@ -65,6 +63,8 @@ def getTransactionDataFromItemsLink(url):
     return se
 
 browser1 = webdriver.Chrome(executable_path='/usr/bin/chromedriver')
+#browser1 = webdriver.Chrome(executable_path='C:\DRIVER\webdriver\chromedriver.exe')
+
 #browser1.get("file:///" + os.getcwd() + "/" + "salesdata.html")
 browser1.get("https://www.mercari.com/jp/mypage/sales/histories/")
 
@@ -88,7 +88,7 @@ for post in posts:
     try:
         salesDataCategory = post.find_element_by_class_name("l-left").text
         url = post.get_attribute("href")
-        if "order_status" in url and u"販売利益" in salesDataCategory:
+        if "order_status" in url and stringForSalesProfitUtf8 in salesDataCategory:
             urllist.append(url)
     except NoSuchElementException as e:
         print(e)
@@ -106,8 +106,6 @@ for url in urllist:
     except UnboundLocalError as e:
         print(df)
 
-df.to_csv("tinko.csv", encoding="utf-8", sep='\t', index=False)
+df.to_csv("salesdata.csv", encoding="utf-8", sep='\t', index=False)
 
-#login-input-text input-default
-#login-input-text input-default
-#browser1.quit()
+browser1.quit()
