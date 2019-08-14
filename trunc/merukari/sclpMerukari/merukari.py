@@ -16,6 +16,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../lib')
 from const import *
 from utility import *
 from bs4 import BeautifulSoup
+import mysql.connector 
+from .mysqlSetting import *
 
 ############################
 ###### Function       ######
@@ -49,6 +51,14 @@ class Merukari:
         except RemoteDisconnected as e:
             print(e)
             pass
+    def pushDataToDataBase(self, df):
+        conn = mysql.connector.connect(**db_settings)
+        cur = conn.cursor()
+        for index, row in df.iterrows():
+            cur.execute(insert_sql_command.format(row.title,row.price,row.sold,row.url,row.sub_category,row.sub_sub_category,row.brand,row.owner,row.ownerId,row.imgUrl,row.post_timestamp))
+        cur.close
+        conn.commit()
+        conn.close
 
     def getWebUrl(self, args, query):
         MLflg = 2 # Default is men's
@@ -101,7 +111,7 @@ class Merukari:
             strTh = getText_find_element_by_css_selector(tr,"th")
             if (strTh == stringOwner_Utf8):
                 ownerName = getText_find_element_by_css_selector(tr,"td a")
-                ownerId = tr.find_element_by_css_selector("td a").get_attribute("href")
+                ownerId = tr.find_element_by_css_selector("td a").get_attribute("href").replace(stringForOwnerBaseUrl, "").rstrip("/")
 
         isSold = 0
         if len(getText_find_element_by_css_selector(self.browser2, stringItemSoldOutBadge)) > 0:
@@ -239,7 +249,6 @@ class Merukari:
                 # Get next page url
                 btn = self.browser1.find_element_by_css_selector(
                     "li.pager-next .pager-cell:nth-child(1) a").get_attribute("href")
-
                 for post in posts:
                     url = post.find_element_by_css_selector("a").get_attribute("href")
                     ## Scraping without tmp html
@@ -249,7 +258,6 @@ class Merukari:
                     #print(priceBox)
                     se = self.getSeriesFromItemsbox(url, priceBox)
                     df = df.append(se, ignore_index=True)
-
                 # Increment page number
                 page+=1
 
@@ -295,8 +303,8 @@ class Merukari:
             print("Option: default")
             # Read csv file
             df = pandas.read_csv(stringCsvFileName, index_col=0)
-            df = self.crowling(num_page=20, url=webUrl, df=df)
+            df = self.crowling(num_page=10, url=webUrl, df=df)
             df.to_csv(stringPathToDatum + self.dataSetName + ".csv", encoding="utf-8", sep='\t')
-
+            self.pushDataToDataBase(df)
         # Return csv file name
         return self.dataSetName + ".csv"

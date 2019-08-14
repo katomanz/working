@@ -120,3 +120,5 @@ stringForSummary="<summary>REPLACE</summary>"
 
 # String for template html name
 stringForTemplateHtml="./analize/template.html"
+
+stringForOwnerBaseUrl="https://www.mercari.com/jp/u/"

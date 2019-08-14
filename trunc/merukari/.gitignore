@@ -2,5 +2,6 @@
 lib/__pycache__/
 dataUpload/__pycache__/
 sclpMerukari/__pycache__/
+sclpMerukari/mysqlSetting.py
 analize/__pycache__/
 __pycache__/
