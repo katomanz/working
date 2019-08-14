@@ -16,8 +16,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../lib')
 from const import *
 from utility import *
 from bs4 import BeautifulSoup
-import mysql.connector 
+import mysql.connector
 from .mysqlSetting import *
+import MySQLdb
 
 ############################
 ###### Function       ######
@@ -52,13 +53,28 @@ class Merukari:
             print(e)
             pass
     def pushDataToDataBase(self, df):
-        conn = mysql.connector.connect(**db_settings)
-        cur = conn.cursor()
-        for index, row in df.iterrows():
-            cur.execute(insert_sql_command.format(row.title,row.price,row.sold,row.url,row.sub_category,row.sub_sub_category,row.brand,row.owner,row.ownerId,row.imgUrl,row.post_timestamp))
-        cur.close
-        conn.commit()
-        conn.close
+        try:
+            conn = mysql.connector.connect(**db_settings)
+            cur = conn.cursor()
+            for index, row in df.iterrows():
+                cur.execute(insert_sql_command.format(
+                    MySQLdb.escape_string(str(row.title)).decode(encoding='utf-8'),
+                    row.price,
+                    row.sold,
+                    row.url,
+                    row.sub_category,
+                    row.sub_sub_category,
+                    row.brand,
+                    MySQLdb.escape_string(str(row.ownerName)).decode(encoding='utf-8'),
+                    row.ownerId,
+                    row.imgUrl,
+                    row.post_timestamp))
+            cur.close
+        except mysql.connector.Error as err:
+            print(err)
+        finally:
+            conn.commit()
+            conn.close
 
     def getWebUrl(self, args, query):
         MLflg = 2 # Default is men's
