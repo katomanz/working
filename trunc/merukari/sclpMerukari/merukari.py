@@ -62,25 +62,8 @@ class Merukari:
         try:
             conn = mysql.connector.connect(**db_settings)
             cur = conn.cursor()
-            cur.execute(
-                """
-                CREATE TABLE IF NOT EXISTS wp_merukari_sales_data(
-                    title varchar(50) NOT NULL,
-                    price int(11) NOT NULL,
-                    sold int(11) NOT NULL,
-                    url varchar(100) NOT NULL,
-                    sub_category varchar(30) NOT NULL,
-                    sub_sub_category varchar(30) NOT NULL,
-                    brand varchar(30) NOT NULL,
-                    owner varchar(30) NOT NULL,
-                    ownerId int NOT NULL,
-                    imgUrl varchar(100) NOT NULL,
-                    post_timestamp varchar(30) NOT NULL,
-                    description varchar(1000) NOT NULL,
-                    PRIMARY KEY (`url`)
-                ) DEFAULT CHARSET=utf8mb4;
-                """)
-            
+            cur.execute(create_sql_command)
+
             for index, row in df.iterrows():
                 cur.execute(insert_sql_command.format(
                     MySQLdb.escape_string(str(row.title)).decode(encoding='utf-8'),
@@ -111,9 +94,9 @@ class Merukari:
             # Return URL, Setting of serch setting
             return (stringMerikariUrl + stringSerch +
                 "?" + stringSortOrder +                         "=" + stringCreatedDesc +  # Sort
-                "&" + stringCategoryRoot +                      "=" + "8"        +  # root category 1=lady's 2=men's
+                "&" + stringCategoryRoot +                      "=" + str(MLflg)        +  # root category 1=lady's 2=men's
                 "&" + stringStatusTradingSoldOut +              "=" + "1"               +  # Status "sold out"
-                "&" + "category_child" +                        "=" + "1164"               +  # Status "sold out"
+#                "&" + stringForCategoryChild +                  "=" + "1164"               +  # Status "sold out"
                 #"&" + stringStatusOnSale +                     "=" + "1" +                # Status "On sale"
                 "&" + stringPriceMin +                          "=" + stingPriceMinValue + # Minimum price
                 "&" + stringItemStatusMishiyouNiChikai +        "=" + "1"               +  # Status of Item
@@ -126,8 +109,8 @@ class Merukari:
             # Return URL, Setting of serch setting
             return (stringMerikariUrl + stringSerch +
                 "?" + stringSortOrder +            "=" + stringCreatedDesc +  # Sort
-                "&" + stringCategoryRoot +         "=" + "8"        +  # root category 1=lady's 2=men's
-                "&" + "category_child" +                        "=" + "1164"               +  # Status "sold out"
+                "&" + stringCategoryRoot +         "=" + str(MLflg)        +  # root category 1=lady's 2=men's
+                #"&" + stringForCategoryChild +     "=" + "1164"            +  # Status "sold out"
                 "&" + stringStatusTradingSoldOut + "=" + "1"               +  # Status "sold out"
                 #"&" + stringStatusOnSale +         "=" + "1" +                # Status "On sale"
                 "&" + stringPriceMin +             "=" + stingPriceMinValue + # Minimum price
@@ -359,7 +342,7 @@ class Merukari:
             print("Option: default")
             # Read csv file
             df = pandas.read_csv(stringCsvFileName, index_col=0)
-            df = self.crowling(num_page=2, url=webUrl, df=df)
+            df = self.crowling(num_page=20, url=webUrl, df=df)
             df.to_csv(stringPathToDatum + self.dataSetName + ".csv", encoding="utf-8", sep='\t')
             self.pushDataToDataBase(df)
         # Return csv file name

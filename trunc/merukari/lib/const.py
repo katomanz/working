@@ -64,6 +64,9 @@ stringKeyword="keyword"
 # Identifer for root category
 stringCategoryRoot="category_root"
 
+# Identifer for category child
+stringForCategoryChild="category_child"
+
 # format of csv file
 stringCsvFileName="./sclpMerukari/default.csv"
 
