@@ -12,6 +12,10 @@ import json
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../lib')
 from const import *
 from utility import *
@@ -32,13 +36,14 @@ class Merukari:
         options = Options()
         options.add_argument('--blink-settings=imagesEnabled=false')
         options.add_argument('--headless')
+        pandas.set_option("display.max_colwidth", 1000)
 
         self.browser1 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
         self.browser2 = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
         #browser1 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
         #browser2 = webdriver.Chrome(chrome_options=options, executable_path='C:\DRIVER\webdriver\chromedriver.exe')
-        self.browser1.implicitly_wait(5)
-        self.browser2.implicitly_wait(5)
+        self.browser1.implicitly_wait(100)
+        self.browser2.implicitly_wait(100)
 
     def __del__(self):
         print("Merukari() is disposed")
@@ -52,10 +57,30 @@ class Merukari:
         except RemoteDisconnected as e:
             print(e)
             pass
+
     def pushDataToDataBase(self, df):
         try:
             conn = mysql.connector.connect(**db_settings)
             cur = conn.cursor()
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS wp_merukari_sales_data(
+                    title varchar(50) NOT NULL,
+                    price int(11) NOT NULL,
+                    sold int(11) NOT NULL,
+                    url varchar(100) NOT NULL,
+                    sub_category varchar(30) NOT NULL,
+                    sub_sub_category varchar(30) NOT NULL,
+                    brand varchar(30) NOT NULL,
+                    owner varchar(30) NOT NULL,
+                    ownerId int NOT NULL,
+                    imgUrl varchar(100) NOT NULL,
+                    post_timestamp varchar(30) NOT NULL,
+                    description varchar(1000) NOT NULL,
+                    PRIMARY KEY (`url`)
+                ) DEFAULT CHARSET=utf8mb4;
+                """)
+            
             for index, row in df.iterrows():
                 cur.execute(insert_sql_command.format(
                     MySQLdb.escape_string(str(row.title)).decode(encoding='utf-8'),
@@ -68,7 +93,8 @@ class Merukari:
                     MySQLdb.escape_string(str(row.ownerName)).decode(encoding='utf-8'),
                     row.ownerId,
                     row.imgUrl,
-                    row.post_timestamp))
+                    row.post_timestamp,
+                    MySQLdb.escape_string(str(row.description)).decode(encoding='utf-8')))
             cur.close
         except mysql.connector.Error as err:
             print(err)
@@ -85,8 +111,9 @@ class Merukari:
             # Return URL, Setting of serch setting
             return (stringMerikariUrl + stringSerch +
                 "?" + stringSortOrder +                         "=" + stringCreatedDesc +  # Sort
-                "&" + stringCategoryRoot +                      "=" + str(MLflg)        +  # root category 1=lady's 2=men's
+                "&" + stringCategoryRoot +                      "=" + "8"        +  # root category 1=lady's 2=men's
                 "&" + stringStatusTradingSoldOut +              "=" + "1"               +  # Status "sold out"
+                "&" + "category_child" +                        "=" + "1164"               +  # Status "sold out"
                 #"&" + stringStatusOnSale +                     "=" + "1" +                # Status "On sale"
                 "&" + stringPriceMin +                          "=" + stingPriceMinValue + # Minimum price
                 "&" + stringItemStatusMishiyouNiChikai +        "=" + "1"               +  # Status of Item
@@ -99,7 +126,8 @@ class Merukari:
             # Return URL, Setting of serch setting
             return (stringMerikariUrl + stringSerch +
                 "?" + stringSortOrder +            "=" + stringCreatedDesc +  # Sort
-                "&" + stringCategoryRoot +         "=" + str(MLflg)        +  # root category 1=lady's 2=men's
+                "&" + stringCategoryRoot +         "=" + "8"        +  # root category 1=lady's 2=men's
+                "&" + "category_child" +                        "=" + "1164"               +  # Status "sold out"
                 "&" + stringStatusTradingSoldOut + "=" + "1"               +  # Status "sold out"
                 #"&" + stringStatusOnSale +         "=" + "1" +                # Status "On sale"
                 "&" + stringPriceMin +             "=" + stingPriceMinValue + # Minimum price
@@ -146,8 +174,12 @@ class Merukari:
         # Get imgUrl
         imgUrl = self.browser2.find_element_by_class_name("owl-item-inner").find_element_by_class_name("owl-lazy").get_attribute("data-src")
         post_timestamp = self.getItemPostTimeStamp(imgUrl)
-        se = pandas.Series([post_timestamp, title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,ownerName,ownerId,imgUrl],
-                        ['post_timestamp','title','price','sold','url','sub_category','sub_sub_category','brand','ownerName','ownerId','imgUrl'])
+
+        # Get detail description
+        description = self.getDescriptionTextFromItemsbox(url)
+
+        se = pandas.Series([post_timestamp, title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,ownerName,ownerId,imgUrl, description],
+                        ['post_timestamp','title','price','sold','url','sub_category','sub_sub_category','brand','ownerName','ownerId','imgUrl','description'])
         se.str.encode(encoding="utf-8")
         return se
 
@@ -196,18 +228,26 @@ class Merukari:
             if (strTh == stringBrand_Utf8):
                 brand = getText_find_element_by_css_selector(tr,"td")
 
-        se = pandas.Series([title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,ownerName,ownerId],
-                        ['title','price','sold','url','sub_category','sub_sub_category','brand','ownerName', 'ownerId'])
+        # Get detail description
+        description = self.getDescriptionTextFromItemsbox(url)
+
+        se = pandas.Series([title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,ownerName,ownerId, description],
+                        ['title','price','sold','url','sub_category','sub_sub_category','brand','ownerName', 'ownerId', 'description'])
         se.str.encode(encoding="utf-8")
         return se
 
     def getDescriptionTextFromItemsbox(self, url):
         # Load URL to browser
         self.getUrl(self.browser2, url)
-
-        # Get item desctiption
-        des = getText_find_element_by_css_selector(self.browser2, "p.item-description-inner")
-        return des
+        try:
+            element = WebDriverWait(self.browser2, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "item-description-inner"))
+            )
+        finally:
+            # Get item desctiption
+            des = getText_find_element_by_css_selector(self.browser2, "p.item-description-inner")
+            
+        return des.replace("\n","")
 
     # Scraping from local directory
     def scrapingFromLocalDirectory(self, directoryPath, df):
@@ -271,8 +311,8 @@ class Merukari:
                     priceBox = getText_find_element_by_css_selector(post, ".items-box-price")
                     priceBox = post.find_element_by_css_selector(".items-box-price").text
                     priceBox = priceBox.replace("¥ ", "").replace(",", "")
-                    #print(priceBox)
                     se = self.getSeriesFromItemsbox(url, priceBox)
+                    # Get detail text
                     df = df.append(se, ignore_index=True)
                 # Increment page number
                 page+=1
@@ -319,7 +359,7 @@ class Merukari:
             print("Option: default")
             # Read csv file
             df = pandas.read_csv(stringCsvFileName, index_col=0)
-            df = self.crowling(num_page=10, url=webUrl, df=df)
+            df = self.crowling(num_page=2, url=webUrl, df=df)
             df.to_csv(stringPathToDatum + self.dataSetName + ".csv", encoding="utf-8", sep='\t')
             self.pushDataToDataBase(df)
         # Return csv file name
