@@ -14,6 +14,16 @@ def getText_find_element_by_css_selector(browser, cssSel):
     finally:
         return ret
 
+# Get element by css name and selector
+def getElements_find_element_by_css_name_by_css_selector(browser, cssName, cssSel):
+    try:
+        ret = browser.find_element_by_class_name(cssName).find_elements_by_css_selector(cssSel)
+    except:
+        print("Could not find " + cssName + cssSel)
+        ret = "NA"
+    finally:
+        return ret
+
 # Get Html file only
 def getHtmlFromItemsbox(browser, url):
     browser.get(url)

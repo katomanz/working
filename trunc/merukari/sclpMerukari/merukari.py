@@ -133,7 +133,8 @@ class Merukari:
         pageUrl = url[:url.rfind('?')-1]
 
         # Get Owner
-        trs = self.browser2.find_element_by_class_name(stringItemDetailTable).find_elements_by_css_selector("tr")
+        trs = getElements_find_element_by_css_name_by_css_selector(self.browser2, stringItemDetailTable, "tr")
+
         for tr in trs:
             strTh = getText_find_element_by_css_selector(tr,"th")
             if (strTh == stringOwner_Utf8):
@@ -149,11 +150,12 @@ class Merukari:
         sub_sub_category = getText_find_element_by_css_selector(self.browser2, stringItemDetailTableSubSubCategory)
 
         # Get brand name
-        trs = self.browser2.find_element_by_class_name("item-box-container").find_elements_by_css_selector("tr")
+        trs = getElements_find_element_by_css_name_by_css_selector(self.browser2, "item-box-container", "tr")
         for tr in trs:
             strTh = getText_find_element_by_css_selector(tr,"th")
             if (strTh == stringBrand_Utf8):
                 brand = getText_find_element_by_css_selector(tr,"td")
+
         # Get imgUrl
         imgUrl = self.browser2.find_element_by_class_name("owl-item-inner").find_element_by_class_name("owl-lazy").get_attribute("data-src")
         post_timestamp = self.getItemPostTimeStamp(imgUrl)
@@ -161,7 +163,7 @@ class Merukari:
         # Get detail description
         description = self.getDescriptionTextFromItemsbox(url)
 
-        se = pandas.Series([post_timestamp, title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,ownerName,ownerId,imgUrl, description],
+        se = pandas.Series([post_timestamp,title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,ownerName,ownerId,imgUrl,description],
                         ['post_timestamp','title','price','sold','url','sub_category','sub_sub_category','brand','ownerName','ownerId','imgUrl','description'])
         se.str.encode(encoding="utf-8")
         return se
@@ -293,7 +295,7 @@ class Merukari:
                     ## Scraping without tmp html
                     priceBox = getText_find_element_by_css_selector(post, ".items-box-price")
                     priceBox = post.find_element_by_css_selector(".items-box-price").text
-                    priceBox = priceBox.replace("¥ ", "").replace(",", "")
+                    priceBox = priceBox.replace("¥", "").replace(",", "")
                     se = self.getSeriesFromItemsbox(url, priceBox)
                     # Get detail text
                     df = df.append(se, ignore_index=True)
@@ -337,12 +339,51 @@ class Merukari:
             text = self.scrapelToGetDescription(num_page=30, url=webUrl)
             with open(stringPathToDatum + self.dataSetName + ".txt", 'ab') as f:
                 f.write(text.encode('utf-8', 'ignore'))
+        
+        elif (args.category != None):
+            # Select Category
+            print("Option: --category")
+            print(args.category)
+            # Read category csv
+            categoryDf = pandas.read_csv(stringCategoryCsvFileName, index_col=0, sep='\t')
+            print(categoryDf['categoryName'])
+
+            # Read csv file
+            df = pandas.read_csv(stringCsvFileName, index_col=0)
+            df = self.crowling(num_page=10, url=webUrl, df=df)
+            df.to_csv(stringPathToDatum + self.dataSetName + ".csv", encoding="utf-8", sep='\t')
+            self.pushDataToDataBase(df)
+
+        elif (args.brand != None):
+            # Select brand
+            print("Option: --brand")
+            # Read brand csv
+            brandDf = pandas.read_csv(stringBrandCsvFileName, index_col=0, sep='\t')
+            tmp = brandDf[brandDf['brandName'].str.contains(args.query)]
+            candidates = tmp.reset_index()
+
+            if len(candidates) < 1:
+                print("Not found!!")
+                exit
+            elif len(candidates) == 1:
+                print(args.query + "found!!")
+            else:
+                print("Several results are found!! Use top one!")
+
+            brandID = candidates.loc[0, 'brandId']
+
+            # Read csv file
+            df = pandas.read_csv(stringCsvFileName, index_col=0)
+            df = self.crowling(num_page=10, url=webUrl, df=df)
+            df.to_csv(stringPathToDatum + self.dataSetName + ".csv", encoding="utf-8", sep='\t')
+            self.pushDataToDataBase(df)
+
         else:
             # Continue to crowling until specified page
             print("Option: default")
             # Read csv file
             df = pandas.read_csv(stringCsvFileName, index_col=0)
-            df = self.crowling(num_page=20, url=webUrl, df=df)
+            df = self.crowling(num_page=10, url=webUrl, df=df)
             df.to_csv(stringPathToDatum + self.dataSetName + ".csv", encoding="utf-8", sep='\t')
             self.pushDataToDataBase(df)
         # Return csv file name

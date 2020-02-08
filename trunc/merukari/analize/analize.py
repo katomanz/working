@@ -63,6 +63,8 @@ class Analyze:
             del htmlData['sub_sub_category']
             del htmlData['brand']
             del htmlData['sold']
+            del htmlData['description']
+            del htmlData['ownerId']
             filename = "/rank" + '{0:02d}'.format(rank) + ".html"
             filepath = stringPathToAnalizeTmpHtml + dataSetName + filename
             htmlData.to_html(filepath)
@@ -70,8 +72,7 @@ class Analyze:
             # Get brand name + sub-sub-category string
             brandCategory = index_name + ": " + str(item)
             
-#            print(htmlData['price'].mean())
-#            priceAve = "{0:.2f}".format(float(htmlData['price'].mean()))
+            priceAve = "{0:.2f}".format(float(htmlData['price'].mean()))
             
             brandCategoryPrice = brandCategory + " Ave: " + str(1000) + "yen"
             brandCategoryElement = stringForSummary.replace('REPLACE', brandCategoryPrice)

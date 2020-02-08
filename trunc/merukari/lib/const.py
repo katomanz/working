@@ -70,6 +70,13 @@ stringForCategoryChild="category_child"
 # format of csv file
 stringCsvFileName="./sclpMerukari/default.csv"
 
+# format of category csv file
+stringCategoryCsvFileName="./sclpMerukari/categorylist.csv"
+
+# format of brand csv file
+stringBrandCsvFileName="./sclpMerukari/brandlist.csv"
+
+
 # string for brand utf-8
 stringBrand_Utf8=u"ブランド"
 
