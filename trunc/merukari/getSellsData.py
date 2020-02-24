@@ -17,6 +17,8 @@ parser.add_argument('-s', '--scrape', action='store_true')
 parser.add_argument('-g', '--getdtl', action='store_true')
 parser.add_argument('-f', '--furugi', action='store_true')
 parser.add_argument('-l', '--ladies', action='store_true')
+parser.add_argument('-c', '--category')
+parser.add_argument('-b', '--brand')
 
 args = parser.parse_args()
 

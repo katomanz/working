@@ -172,8 +172,8 @@ class Merukari:
         r = requests.head(url)
         resJson = r.headers
         loadedDict = dict(resJson)
-        timestamp = loadedDict["Last-Modified"]
-        print(timestamp)
+        _timestamp = loadedDict["Last-Modified"]
+        timestamp = datetime.datetime.strptime(_timestamp, '%a, %d %b %Y %H:%M:%S GMT' )
         return timestamp
 
     def getSeriesFromItemsboxFromLocalDirectory(self, url):
@@ -386,5 +386,6 @@ class Merukari:
             df = self.crowling(num_page=10, url=webUrl, df=df)
             df.to_csv(stringPathToDatum + self.dataSetName + ".csv", encoding="utf-8", sep='\t')
             self.pushDataToDataBase(df)
+
         # Return csv file name
         return self.dataSetName + ".csv"
