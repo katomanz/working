@@ -36,7 +36,7 @@ class Analyze:
         csv_data['stringForLink1'] = stringForLink1
         csv_data['stringForLink2'] = stringForLink2
         csv_data['stringForLink3'] = stringForLink3
-        csv_data['tileWithLink'] = csv_data['stringForLink1'] + csv_data['url'] + csv_data['stringForLink2'] + csv_data['title'] + csv_data['stringForLink3']
+        csv_data['tileWithLink'] = csv_data['stringForLink1'] + csv_data['pageUrl'] + csv_data['stringForLink2'] + csv_data['title'] + csv_data['stringForLink3']
 
         # Added imgUrl column
         for index, row in csv_data.iterrows():
@@ -54,7 +54,7 @@ class Analyze:
             htmlData = csv_data[csv_data['brand-sub_sub_category'] == index_name]
             # Delete unnecessary columns
             del htmlData['Unnamed: 0']
-            del htmlData['url']
+            del htmlData['pageUrl']
             del htmlData['title']
             del htmlData['stringForLink1']
             del htmlData['stringForLink2']
@@ -62,7 +62,7 @@ class Analyze:
             del htmlData['sub_category']
             del htmlData['sub_sub_category']
             del htmlData['brand']
-            del htmlData['sold']
+            del htmlData['isSold']
             del htmlData['description']
             del htmlData['ownerId']
             filename = "/rank" + '{0:02d}'.format(rank) + ".html"
