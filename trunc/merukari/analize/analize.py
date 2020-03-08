@@ -30,7 +30,7 @@ class Analyze:
             os.mkdir(stringPathToAnalizeTmpHtml + dataSetName)
 
         csv_data = pd.read_csv(stringPathToDatum + csvFileName, sep='\t')
-        csv_data.fillna('No Brand', inplace=True)
+        csv_data.fillna({'brand':'No Brand', 'price':3000}, inplace=True)
 
         # Added new columns for link columns
         csv_data['stringForLink1'] = stringForLink1
@@ -54,7 +54,7 @@ class Analyze:
             htmlData = csv_data[csv_data['brand-sub_sub_category'] == index_name]
             # Delete unnecessary columns
             del htmlData['Unnamed: 0']
-            del htmlData['pageUrl']
+            del htmlData['url']
             del htmlData['title']
             del htmlData['stringForLink1']
             del htmlData['stringForLink2']
@@ -62,7 +62,7 @@ class Analyze:
             del htmlData['sub_category']
             del htmlData['sub_sub_category']
             del htmlData['brand']
-            del htmlData['isSold']
+            del htmlData['sold']
             del htmlData['description']
             del htmlData['ownerId']
             filename = "/rank" + '{0:02d}'.format(rank) + ".html"
@@ -74,7 +74,7 @@ class Analyze:
             
             priceAve = "{0:.2f}".format(float(htmlData['price'].mean()))
             
-            brandCategoryPrice = brandCategory + " Ave: " + str(1000) + "yen"
+            brandCategoryPrice = brandCategory + " Ave: " + str(priceAve) + "yen"
             brandCategoryElement = stringForSummary.replace('REPLACE', brandCategoryPrice)
             
             with open(filepath,'r') as htmlFile:

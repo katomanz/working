@@ -216,8 +216,12 @@ class Merukari:
         # Get detail description
         description = self.getDescriptionTextFromItemsbox(url)
 
-        se = pandas.Series([title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,ownerName,ownerId, description],
-                        ['title','price','sold','url','sub_category','sub_sub_category','brand','ownerName', 'ownerId', 'description'])
+        # Get imgUrl
+        imgUrl = self.browser2.find_element_by_class_name("owl-item-inner").find_element_by_class_name("owl-lazy").get_attribute("data-src")
+        post_timestamp = self.getItemPostTimeStamp(imgUrl)
+
+        se = pandas.Series([post_timestamp,title,price,isSold,pageUrl,sub_category,sub_sub_category,brand,ownerName,ownerId,imgUrl,description],
+                        ['post_timestamp','title','price','sold','url','sub_category','sub_sub_category','brand','ownerName','ownerId','imgUrl','description'])
         se.str.encode(encoding="utf-8")
         return se
 
